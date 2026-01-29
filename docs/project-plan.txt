@@ -1,0 +1,676 @@
+PROJECT SPECIFICATION: FINFlow - Personal Investment & Debt Management Platform
+1. EXECUTIVE SUMMARY
+FinFlow is a comprehensive personal finance mobile application targeting Indian users (INR currency) that combines automated budgeting, investment tracking, loan management, and long-term wealth projection. The app implements a sophisticated "Three Bracket System" with dynamic allocation algorithms, EMI management, and compound interest projections.
+2. CORE FINANCIAL MODEL
+2.1 The Three Income Brackets
+Users are classified into tiers based on monthly income:
+Bracket 1 (Entry): ₹15,000 - ₹25,000/month (Starting: ₹25,000)
+Bracket 2 (Mid): ₹50,000 - ₹75,000/month (Starting: ₹75,000)
+Bracket 3 (High): ₹1,00,000+/month (Starting: ₹1,00,000)
+Salary Progression Logic:
+Annual increment: 10% fixed (compounding)
+Age range: 21-60 years (40-year projection)
+Formula: Salary_Year_N = Starting_Salary × (1.10)^(N-1)
+Example: Bracket 1 at Age 30 = ₹58,949/month; Age 60 = ₹10,28,619/month
+2.2 Dynamic Budget Allocation Rules
+BRACKET 1 (₹25K start, No Emergency Fund allocation):
+Needs: 53% (Rent 28%, Food 11%, Utilities 6%, Transport 5%, Mobile 3%)
+Wants: 27% (Dining 6%, Entertainment 5%, Shopping 5%, Personal Care 4%, Education 3%, Travel 2%, Gifts 1%, Misc 1%)
+Investments: 20%
+Emergency Fund: 0% (postponed until income rises)
+BRACKET 2 (₹75K start):
+Needs: 50% (Rent 25%, Food 9%, Utilities 6%, Transport 7%, Mobile 3%)
+Wants: 20%
+Emergency Fund: 5% (accumulated separately until 6-month buffer reached)
+Investments: 25%
+BRACKET 3 (₹1L+ start):
+Needs: 45% (Rent 20%, Food 9%, Utilities 6%, Transport 7%, Mobile 3%)
+Wants: 20%
+Emergency Fund: 10%
+Investments: 25%
+Absolute Constraint: Investment allocation must never drop below 10% regardless of loan obligations.
+3. INVESTMENT ENGINE
+3.1 Asset Allocation Matrix
+Blended Returns Calculation:
+| Asset              | Bracket 1  | Bracket 2  | Bracket 3  | Annual Return | Monthly Rate |
+| ------------------ | ---------- | ---------- | ---------- | ------------- | ------------ |
+| Mutual Funds (SIP) | 45%        | 50%        | 60%        | 15.00%        | 0.0125       |
+| Debt Funds         | 25%        | 25%        | 15%        | 8.00%         | 0.0067       |
+| Stocks (Direct)    | 15%        | 12.5%      | 12.5%      | 15.00%        | 0.0125       |
+| Fixed Deposits     | 10%        | 6.25%      | 6.25%      | 7.00%         | 0.0058       |
+| Digital Gold       | 5%         | 6.25%      | 6.25%      | 11.00%        | 0.0092       |
+| **Blended Return** | **12.25%** | **12.50%** | **13.20%** | -             | See below    |
+Monthly Compounding Rates:
+Bracket 1: 0.01020833 (12.25% p.a.)
+Bracket 2: 0.01041667 (12.50% p.a.)
+Bracket 3: 0.01100000 (13.20% p.a.)
+3.2 Step-Up SIP Logic
+Monthly SIP amount increases annually by salary increment percentage (10%)
+Timing: Every 12th month (anniversary of start)
+Formula: New_SIP = Previous_SIP × 1.10
+3.3 Corpus Calculation Algorithm
+
+compound_monthly(investment_monthly, months, monthly_rate, annual_step_up=0.10):
+    corpus = 0
+    current_sip = investment_monthly
+    projections = []
+    
+    for month in range(1, months + 1):
+        # Annual SIP step-up (if not first month)
+        if month % 12 == 1 and month > 1:
+            current_sip *= (1 + annual_step_up)
+        
+        # Compound previous corpus + new investment
+        corpus = (corpus + current_sip) * (1 + monthly_rate)
+        
+        projections.append({
+            "month": month,
+            "age": 21 + (month-1)/12,
+            "invested": current_sip,
+            "corpus": round(corpus, 2),
+            "total_invested": sum of all SIPs till date
+        })
+    
+    return projections
+
+Target Projections (Age 60):
+Bracket 1: ₹9.83 Crores (Total Invested: ₹1.83 Crores)
+Bracket 2: ₹31.80 Crores (Total Invested: ₹5.40 Crores)
+Bracket 3: ₹48.41 Crores (Total Invested: ₹7.20 Crores)
+4. LOAN MANAGEMENT MODULE
+4.1 Supported Loan Types
+Home Loan: 8.5-9.5%, 15-30 years, Tax: Section 24 (₹2L interest) + 80C (₹1.5L principal)
+Education Loan: 9-12%, 5-15 years, Tax: Section 80E (unlimited interest)
+Car Loan: 9-12%, 3-7 years, No tax benefit
+Personal Loan: 12-18%, 1-5 years, No tax benefit
+Credit Card Debt: 36-48%, Revolving, No tax benefit
+4.2 EMI Calculation (Reducing Balance)
+function calculateEMI(principal, annualRate, years) {
+    const p = principal;
+    const r = annualRate / (12 * 100);  // monthly interest rate
+    const n = years * 12;               // total months
+    
+    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    return emi;
+}
+
+function generateAmortization(principal, rate, years, startDate) {
+    const emi = calculateEMI(principal, rate, years);
+    let balance = principal;
+    const schedule = [];
+    
+    for(let month = 1; month <= years * 12; month++) {
+        const interest = balance * (rate / 100 / 12);
+        const principal_paid = emi - interest;
+        balance -= principal_paid;
+        
+        schedule.push({
+            month: month,
+            payment_date: addMonths(startDate, month),
+            emi: emi,
+            principal_component: principal_paid,
+            interest_component: interest,
+            balance: Math.max(0, balance)
+        });
+    }
+    return schedule;
+}
+Comprehensive Mobile App Specification for Financial Planning and Loan Management
+PROJECT SPECIFICATION: FINFlow - Personal Investment & Debt Management Platform
+1. EXECUTIVE SUMMARY
+FinFlow is a comprehensive personal finance mobile application targeting Indian users (INR currency) that combines automated budgeting, investment tracking, loan management, and long-term wealth projection. The app implements a sophisticated "Three Bracket System" with dynamic allocation algorithms, EMI management, and compound interest projections.
+2. CORE FINANCIAL MODEL
+2.1 The Three Income Brackets
+Users are classified into tiers based on monthly income:
+Bracket 1 (Entry): ₹15,000 - ₹25,000/month (Starting: ₹25,000)
+Bracket 2 (Mid): ₹50,000 - ₹75,000/month (Starting: ₹75,000)
+Bracket 3 (High): ₹1,00,000+/month (Starting: ₹1,00,000)
+Salary Progression Logic:
+Annual increment: 10% fixed (compounding)
+Age range: 21-60 years (40-year projection)
+Formula: Salary_Year_N = Starting_Salary × (1.10)^(N-1)
+Example: Bracket 1 at Age 30 = ₹58,949/month; Age 60 = ₹10,28,619/month
+2.2 Dynamic Budget Allocation Rules
+BRACKET 1 (₹25K start, No Emergency Fund allocation):
+Needs: 53% (Rent 28%, Food 11%, Utilities 6%, Transport 5%, Mobile 3%)
+Wants: 27% (Dining 6%, Entertainment 5%, Shopping 5%, Personal Care 4%, Education 3%, Travel 2%, Gifts 1%, Misc 1%)
+Investments: 20%
+Emergency Fund: 0% (postponed until income rises)
+BRACKET 2 (₹75K start):
+Needs: 50% (Rent 25%, Food 9%, Utilities 6%, Transport 7%, Mobile 3%)
+Wants: 20%
+Emergency Fund: 5% (accumulated separately until 6-month buffer reached)
+Investments: 25%
+BRACKET 3 (₹1L+ start):
+Needs: 45% (Rent 20%, Food 9%, Utilities 6%, Transport 7%, Mobile 3%)
+Wants: 20%
+Emergency Fund: 10%
+Investments: 25%
+Absolute Constraint: Investment allocation must never drop below 10% regardless of loan obligations.
+3. INVESTMENT ENGINE
+3.1 Asset Allocation Matrix
+Blended Returns Calculation:
+Table
+Copy
+Asset	Bracket 1	Bracket 2	Bracket 3	Annual Return	Monthly Rate
+Mutual Funds (SIP)	45%	50%	60%	15.00%	0.0125
+Debt Funds	25%	25%	15%	8.00%	0.0067
+Stocks (Direct)	15%	12.5%	12.5%	15.00%	0.0125
+Fixed Deposits	10%	6.25%	6.25%	7.00%	0.0058
+Digital Gold	5%	6.25%	6.25%	11.00%	0.0092
+Blended Return	12.25%	12.50%	13.20%	-	See below
+Monthly Compounding Rates:
+Bracket 1: 0.01020833 (12.25% p.a.)
+Bracket 2: 0.01041667 (12.50% p.a.)
+Bracket 3: 0.01100000 (13.20% p.a.)
+3.2 Step-Up SIP Logic
+Monthly SIP amount increases annually by salary increment percentage (10%)
+Timing: Every 12th month (anniversary of start)
+Formula: New_SIP = Previous_SIP × 1.10
+3.3 Corpus Calculation Algorithm
+Python
+Copy
+compound_monthly(investment_monthly, months, monthly_rate, annual_step_up=0.10):
+    corpus = 0
+    current_sip = investment_monthly
+    projections = []
+    
+    for month in range(1, months + 1):
+        # Annual SIP step-up (if not first month)
+        if month % 12 == 1 and month > 1:
+            current_sip *= (1 + annual_step_up)
+        
+        # Compound previous corpus + new investment
+        corpus = (corpus + current_sip) * (1 + monthly_rate)
+        
+        projections.append({
+            "month": month,
+            "age": 21 + (month-1)/12,
+            "invested": current_sip,
+            "corpus": round(corpus, 2),
+            "total_invested": sum of all SIPs till date
+        })
+    
+    return projections
+Target Projections (Age 60):
+Bracket 1: ₹9.83 Crores (Total Invested: ₹1.83 Crores)
+Bracket 2: ₹31.80 Crores (Total Invested: ₹5.40 Crores)
+Bracket 3: ₹48.41 Crores (Total Invested: ₹7.20 Crores)
+4. LOAN MANAGEMENT MODULE
+4.1 Supported Loan Types
+Home Loan: 8.5-9.5%, 15-30 years, Tax: Section 24 (₹2L interest) + 80C (₹1.5L principal)
+Education Loan: 9-12%, 5-15 years, Tax: Section 80E (unlimited interest)
+Car Loan: 9-12%, 3-7 years, No tax benefit
+Personal Loan: 12-18%, 1-5 years, No tax benefit
+Credit Card Debt: 36-48%, Revolving, No tax benefit
+4.2 EMI Calculation (Reducing Balance)
+JavaScript
+Copy
+function calculateEMI(principal, annualRate, years) {
+    const p = principal;
+    const r = annualRate / (12 * 100);  // monthly interest rate
+    const n = years * 12;               // total months
+    
+    const emi = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    return emi;
+}
+
+function generateAmortization(principal, rate, years, startDate) {
+    const emi = calculateEMI(principal, rate, years);
+    let balance = principal;
+    const schedule = [];
+    
+    for(let month = 1; month <= years * 12; month++) {
+        const interest = balance * (rate / 100 / 12);
+        const principal_paid = emi - interest;
+        balance -= principal_paid;
+        
+        schedule.push({
+            month: month,
+            payment_date: addMonths(startDate, month),
+            emi: emi,
+            principal_component: principal_paid,
+            interest_component: interest,
+            balance: Math.max(0, balance)
+        });
+    }
+    return schedule;
+}
+4.3 Dynamic Budget Recalculation with Loans
+When user adds a loan, recalculate allocations:
+
+Valid DTI (Debt-to-Income) Limits:
+- Bracket 1: Max 30%
+- Bracket 2: Max 40%  
+- Bracket 3: Max 50%
+
+Recalculation Priority Order (when EMI introduced):
+1. Reduce Wants (minimum survival mode: 10% of income)
+2. Reduce Needs (compression: max 10% reduction)
+3. Reduce Investments (floor: 10% of income)
+4. If still negative: HIGH DEBT WARNING (block new loans)
+
+Example (Bracket 1, ₹25K income, ₹6,608 Education Loan EMI):
+- Original: Needs ₹13,250 (53%), Wants ₹6,750 (27%), Invest ₹5,000 (20%)
+- With Loan: Needs ₹11,250 (45%), EMI ₹6,608 (26%), Invest ₹3,500 (14%), Wants ₹3,642 (15%)
+4.4 Loan Buffers (Emergency Fund Additions)
+Maintain separate liquid buffers:
+Home Loan: 6 months EMI
+Car Loan: 3 months EMI
+Personal Loan: 3 months EMI + Aggressive prepay priority
+Education Loan: 0 months (during study), 3 months after
+4.5 Prepayment vs Investment Optimizer
+Algorithm:
+effective_loan_rate = nominal_rate × (1 - tax_benefit)
+
+if effective_loan_rate > investment_return:
+    action = "PREPAY"
+elif effective_loan_rate < (investment_return - 2%):
+    action = "INVEST"
+else:
+    action = "HYBRID" (50/50 split)
+
+Examples:
+- Personal Loan 15%: Effective 15% > 12.25% → PREPAY
+- Home Loan 8.5% with 30% tax bracket: Effective 5.95% < 12.25% → INVEST
+4.6 Debt Freedom Protocol
+When loan is closed:
+30% of freed EMI → Emergency Fund (until 12-month buffer)
+40% → Restore Investment allocation to bracket target
+30% → Lifestyle improvement (Wants) or accelerate other loans
+5. DATABASE SCHEMA
+5.1 Users Table
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    email VARCHAR(255) UNIQUE,
+    phone VARCHAR(20),
+    current_age INT,
+    current_salary DECIMAL(12,2),
+    income_bracket INT CHECK (income_bracket IN (1,2,3)),
+    city_tier VARCHAR(20), -- metro, tier_2, tier_3
+    risk_profile VARCHAR(20), -- conservative, balanced, aggressive
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+5.2 Monthly Financial Snapshots
+CREATE TABLE monthly_snapshots (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    age INT,
+    year INT,
+    month INT,
+    monthly_income DECIMAL(12,2),
+    
+    -- Allocations
+    needs_amount DECIMAL(12,2),
+    wants_amount DECIMAL(12,2),
+    investment_amount DECIMAL(12,2),
+    emergency_allocation DECIMAL(12,2),
+    total_emi DECIMAL(12,2),
+    
+    -- Investment tracking
+    mf_contribution DECIMAL(12,2),
+    debt_fund_contribution DECIMAL(12,2),
+    stocks_contribution DECIMAL(12,2),
+    fd_contribution DECIMAL(12,2),
+    gold_contribution DECIMAL(12,2),
+    
+    -- Running totals
+    total_invested DECIMAL(15,2),
+    current_corpus DECIMAL(15,2),
+    emergency_fund_balance DECIMAL(15,2),
+    
+    created_at TIMESTAMP
+);
+5.3 Loans Table
+CREATE TABLE loans (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    loan_type VARCHAR(20), -- home, car, education, personal, credit_card
+    lender_name VARCHAR(100),
+    principal_amount DECIMAL(12,2),
+    interest_rate DECIMAL(5,2), -- annual
+    tenure_months INT,
+    emi_amount DECIMAL(10,2),
+    start_date DATE,
+    remaining_principal DECIMAL(12,2),
+    total_interest_payable DECIMAL(12,2),
+    
+    -- Tax benefits
+    tax_section VARCHAR(10), -- 24, 80C, 80E, none
+    max_tax_benefit_amount DECIMAL(10,2),
+    
+    -- Status
+    status VARCHAR(20), -- active, closed, defaulted
+    priority_score INT, -- 1-10 (10 = prepay immediately)
+    
+    created_at TIMESTAMP
+);
+5.4 Loan Payments
+CREATE TABLE loan_payments (
+    id UUID PRIMARY KEY,
+    loan_id UUID REFERENCES loans(id),
+    payment_date DATE,
+    emi_amount DECIMAL(10,2),
+    principal_component DECIMAL(10,2),
+    interest_component DECIMAL(10,2),
+    prepayment_amount DECIMAL(10,2), -- extra payment
+    remaining_balance DECIMAL(12,2),
+    is_tax_claimed BOOLEAN DEFAULT false
+);
+5.5 Investment Portfolio
+CREATE TABLE investments (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    asset_type VARCHAR(20), -- mf_equity, mf_debt, stocks, fd, gold
+    scheme_name VARCHAR(100),
+    folio_number VARCHAR(50),
+    monthly_sip_amount DECIMAL(10,2),
+    current_value DECIMAL(15,2),
+    units_held DECIMAL(10,4),
+    nav DECIMAL(10,4),
+    start_date DATE,
+    is_tax_saving BOOLEAN, -- ELSS for 80C
+    exit_load_percentage DECIMAL(5,2)
+);
+5.6 Goals & Targets
+CREATE TABLE financial_goals (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    goal_type VARCHAR(30), -- emergency_fund, retirement, home_down_payment, etc.
+    target_amount DECIMAL(15,2),
+    target_date DATE,
+    current_progress DECIMAL(15,2),
+    priority INT, -- 1-5
+    is_completed BOOLEAN DEFAULT false
+);
+6. MOBILE APPLICATION FEATURES
+6.1 Onboarding Flow
+Income Assessment: Current salary, age, city
+Bracket Assignment: Auto-assign Tier 1/2/3
+Lifestyle Quiz: Determine if existing loans
+Goal Setting: Retirement age, major purchase plans
+Dashboard Initialization: Generate 40-year projection
+6.2 Core Screens
+DASHBOARD (Home)
+Current month allocation pie chart (Needs/Wants/Invest/EMI)
+Corpus growth chart (Actual vs Projected)
+DTI Health Meter (Green/Yellow/Red gauge)
+Emergency Fund Progress Bar (X months covered)
+Net Worth Card (Assets - Liabilities)
+BUDGET PLANNER
+Dynamic sliders for each category
+Real-time recalculation of projections when adjusted
+"Lock" feature: Prevent reduction of Investment below 10%
+Loan impact simulator: "Add Loan" button to see budget compression
+LOAN MANAGER
+List of active loans with remaining tenure
+EMI Calendar (Gantt view of all EMIs)
+Prepayment Calculator: Input lumpsum → See interest saved & tenure reduction
+Refinance Alert: When market rates drop 1%+ below current
+Tax Benefit Tracker: "You can claim ₹X this FY under Section Y"
+INVESTMENT TRACKER
+Asset allocation pie chart (MF/Debt/Stocks/FD/Gold)
+SIP Dashboard: Next debit dates, amounts
+Step-up Reminder: "Your SIP will increase 10% next month"
+Rebalancing Suggestions: When allocation drifts >5% from target
+PROJECTIONS (40-Year View)
+Interactive line graph: Salary vs Corpus vs Total Invested
+Age slider: See net worth at any specific age
+Scenario comparison: "If I take ₹10L loan now vs later"
+FIRE Number: "You need ₹X to retire. Current trajectory: Age Y"
+ALERTS CENTER
+High DTI Warning (>40% for Tier 2, >50% for Tier 3)
+Emergency Fund milestones ("3 months achieved!")
+Tax saving opportunities ("Invest ₹50K more in ELSS to save ₹15K tax")
+Loan prepayment suggestions
+Lifestyle creep warnings (Expenses growing faster than income)
+6.3 Calculators (Tools Section)
+1. Affordability Calculator
+Inputs: Proposed loan amount, rate, tenure
+Output: "Can you afford this?" (Yes/No), New DTI, Impact on investments
+2. Prepayment Impact Simulator
+Input: Loan ID, Prepayment amount, When
+Output: Interest saved, Tenure reduced, New EMI (if applicable)
+3. Debt Avalanche vs Snowball
+Input: List of loans with balances and rates
+Output: Comparison table showing payoff date for each strategy
+4. Tax Optimizer
+Input: Current investments, loans, salary
+Output: "You are utilizing ₹X of ₹Y limit in 80C. Suggested actions..."
+7. API SPECIFICATIONS
+7.1 Core Endpoints
+GET /api/user/{id}/dashboard
+{
+  "current_month": {
+    "income": 75000,
+    "allocations": {
+      "needs": 37500,
+      "wants": 15000,
+      "investments": 15000,
+      "emergency_fund": 3750,
+      "total_emi": 34713
+    },
+    "dti_ratio": 46.2,
+    "health_status": "caution"
+  },
+  "corpus": {
+    "current_value": 2450000,
+    "projected_age_60": 31800000,
+    "total_invested_till_date": 850000
+  },
+  "emergency_fund": {
+    "current_months": 4.2,
+    "target_months": 6,
+    "gap": 1.8
+  }
+}
+POST /api/loans/simulate
+Request:
+{
+  "user_id": "uuid",
+  "loan_type": "home",
+  "principal": 4000000,
+  "interest_rate": 8.5,
+  "tenure_years": 20,
+  "start_age": 25
+}
+Response:
+{
+  "emi": 34713,
+  "total_interest": 4331120,
+  "total_payment": 8331120,
+  "impact": {
+    "dti_increase": 46.2,
+    "investment_reduction": 7500,
+    "corpus_at_60_reduction": 8200000,
+    "fire_delay_years": 3.5
+  },
+  "affordable": true,
+  "warning": "Investment allocation will drop to 10% (minimum threshold)"
+}
+POST /api/loans/{id}/prepay-simulate
+Request:
+{
+  "prepayment_amount": 200000,
+  "month_of_prepay": 36
+}
+Response:
+{
+  "interest_saved": 523400,
+  "tenure_reduced_months": 18,
+  "new_tenure_years": 18.5,
+  "break_even_months": 8,
+  "recommendation": "Prepay immediately - High interest savings"
+}
+GET /api/projections/{user_id}?scenario=with_loans|without_loans
+Returns 480 data points (40 years × 12 months) with:
+Age, Income, SIP Amount, Corpus Value
+Loan balances (if any)
+Net worth
+8. BUSINESS RULES & ALGORITHMS
+8.1 Allocation Recalculation (Pseudo-code)
+
+function recalculateBudget(user, newLoanEMI = 0):
+    income = user.current_salary
+    bracket = user.income_bracket
+    
+    // Base percentages
+    if bracket == 1:
+        needs_pct = 0.53; wants_pct = 0.27; invest_pct = 0.20; emrg_pct = 0
+    elif bracket == 2:
+        needs_pct = 0.50; wants_pct = 0.20; invest_pct = 0.25; emrg_pct = 0.05
+    else:
+        needs_pct = 0.45; wants_pct = 0.20; invest_pct = 0.25; emrg_pct = 0.10
+    
+    // Apply loan compression
+    if newLoanEMI > 0:
+        dti = newLoanEMI / income
+        
+        // Priority order for compression
+        available_for_wants = income * wants_pct
+        excess = newLoanEMI - (income - (income * (needs_pct + invest_pct + emrg_pct)))
+        
+        if excess > 0:
+            // Reduce wants first
+            wants_reduction = min(available_for_wants - (income * 0.10), excess)
+            wants_pct -= wants_reduction / income
+            excess -= wants_reduction
+            
+        if excess > 0:
+            // Reduce needs (max 10% compression)
+            max_needs_cut = income * 0.10
+            needs_reduction = min(max_needs_cut, excess)
+            needs_pct -= needs_reduction / income
+            excess -= needs_reduction
+            
+        if excess > 0:
+            // Reduce investments (floor 10%)
+            min_invest = 0.10
+            current_invest = income * invest_pct
+            max_invest_cut = current_invest - (income * min_invest)
+            invest_reduction = min(max_invest_cut, excess)
+            invest_pct -= invest_reduction / income
+            excess -= invest_reduction
+            
+        if excess > 0:
+            return ERROR "Loan not affordable - Exceeds 10% investment floor"
+    
+    return {
+        needs: income * needs_pct,
+        wants: income * wants_pct,
+        invest: income * invest_pct,
+        emergency: income * emrg_pct,
+        emi: newLoanEMI
+    }
+8.2 Tax Benefit Calculator
+function calculateTaxBenefits(user, fy_year):
+    total_benefit = 0
+    
+    // Section 80C (₹1.5L limit)
+    eighty_c_contributions = [
+        user.elss_investments,
+        user.home_loan_principal,
+        user.ppf_contributions,
+        user.lic_premiums
+    ]
+    eighty_c_used = min(sum(eighty_c_contributions), 150000)
+    tax_saved_80c = eighty_c_used * user.tax_slab // 0.05, 0.20, or 0.30
+    
+    // Section 24 (Home Loan Interest - ₹2L limit)
+    home_loan_interest = sum of interest paid on home loans
+    twenty_four_used = min(home_loan_interest, 200000)
+    tax_saved_24 = twenty_four_used * user.tax_slab
+    
+    // Section 80E (Education Loan - No limit)
+    edu_loan_interest = sum of education loan interest
+    tax_saved_80e = edu_loan_interest * user.tax_slab
+    
+    return {
+        total_saved: tax_saved_80c + tax_saved_24 + tax_saved_80e,
+        breakdown: {
+            "80C": tax_saved_80c,
+            "24": tax_saved_24,
+            "80E": tax_saved_80e
+        },
+        remaining_80c_limit: 150000 - eighty_c_used,
+        remaining_24_limit: 200000 - twenty_four_used
+    }
+8.3 Rebalancing Alerts
+function checkRebalancing(user):
+    target_allocation = getTargetAllocation(user.bracket)
+    current_allocation = getCurrentPortfolio(user.id)
+    alerts = []
+    
+    for asset in ["mf_equity", "debt", "stocks", "fd", "gold"]:
+        drift = abs(current_allocation[asset] - target_allocation[asset])
+        if drift > 0.05: // 5% threshold
+            action = "SELL" if current_allocation[asset] > target_allocation[asset] else "BUY"
+            alerts.push({
+                asset: asset,
+                current: current_allocation[asset],
+                target: target_allocation[asset],
+                action: action,
+                amount_to_adjust: calculateRebalanceAmount(user.portfolio_value, drift)
+            })
+    
+    return alerts
+9. EDGE CASES & VALIDATIONS
+9.1 Loan Merging Rules
+Maximum DTI hard limits: Tier 1 (30%), Tier 2 (40%), Tier 3 (50%)
+If adding loan exceeds limit: Block with message "This loan will exceed healthy debt limits. Consider increasing down payment or income first."
+9.2 Income Transition Logic
+When user moves from Bracket 1→2 (salary crosses ₹50K):
+Trigger: "Income Bracket Upgrade"
+Action: Automatically introduce 5% Emergency Fund allocation
+Reduce Needs % from 53% to 50%
+Increase Investment % from 20% to 25%
+Send congratulatory notification with updated projections
+9.3 Emergency Fund Prioritization
+Years 1-3: Build to 6 months expenses (暂停 other goals if needed)
+Years 4+: Maintain 6 months, excess to investments
+If Emergency Fund used: Pause investments for 3 months to replenish
+9.4 Market Crash Scenarios
+If corpus drops >20% from peak: Show "Stay Invested" warning
+Do NOT suggest stopping SIPs (violation of core strategy)
+Show historical recovery data
+10. REPORTING & ANALYTICS
+Monthly PDF Report Generation:
+Income vs Allocation breakdown
+Loan amortization progress (Principal vs Interest paid)
+Tax saving opportunity summary
+Net worth growth chart
+Next month action items (SIP step-up, prepayment suggestions)
+Annual Financial Health Score:
+0-100 scale based on:
+DTI ratio (30 points)
+Emergency fund coverage (20 points)
+Investment consistency (20 points)
+Tax optimization (15 points)
+Goal progress (15 points)
+11. INTEGRATION REQUIREMENTS
+External APIs:
+Razorpay/Stripe: For SIP mandate setup (if in-app investing enabled)
+CAMS/Karvy MF: For mutual fund portfolio import (optional V2)
+CICIL/Experian: For credit score monitoring (optional V2)
+Income Tax Department: For ITR verification (optional V2)
+Notification System:
+Push notifications for:
+SIP debit reminders (2 days prior)
+EMI due dates (3 days prior)
+Rebalancing alerts (monthly)
+Tax saving deadlines (Jan/Feb for FY end)
+Salary increment suggestions (annual)
+12. SUCCESS METRICS (KPIs)
+User Engagement:
+Daily active users checking corpus projection
+Monthly budget reconciliation rate
+Loan prepayment suggestions acted upon
+Financial Health Improvements:
+Average DTI reduction over 6 months
+Emergency fund achievement rate (target: 70% users reach 6-month buffer)
+Tax savings optimized (target: 90% of eligible benefits claimed)
+Retention:
+40-year projection updates (users should check weekly)
+Goal completion rate
