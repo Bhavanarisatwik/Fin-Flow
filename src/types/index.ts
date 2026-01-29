@@ -24,18 +24,36 @@ export interface FinancialGoal {
     completed: boolean;
 }
 
+export interface LoanTranche {
+    amount: number;
+    date: string; // ISO Date
+}
+
+export interface LoanPayment {
+    date: string;
+    amount: number;
+    principal: number;
+    interest: number;
+    balance: number;
+}
+
 export interface Loan {
     id: string;
     userId: string;
     name: string;
     type: 'Home' | 'Education' | 'Car' | 'Personal' | 'Credit Card';
-    principal: number;
+    principal: number; // Original disbursed amount
     interestRate: number; // Annual %
     tenureMonths: number;
     startDate: string;
     emi: number;
-    remainingPrincipal: number;
+    remainingPrincipal: number; // Current balance including accrued interest
     status: 'Active' | 'Closed';
+    moratoriumEndDate?: string; // ISO Date for when EMI starts
+    minimumEmi?: number; // User preference
+    tranches?: LoanTranche[]; // Multiple disbursements
+    interestAccrued?: number; // Interest accumulated during moratorium
+    paymentHistory?: LoanPayment[]; // Track payments made
 }
 
 export interface Transaction {

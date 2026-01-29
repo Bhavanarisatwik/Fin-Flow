@@ -1,36 +1,66 @@
 :root {
-  /* Core Colors - Slate (Dark Mode Default) */
-  --bg-primary: #020617; /* Slate 950 */
-  --bg-secondary: #0f172a; /* Slate 900 */
-  --bg-tertiary: #1e293b; /* Slate 800 */
-  
-  --text-primary: #f8fafc; /* Slate 50 */
-  --text-secondary: #94a3b8; /* Slate 400 */
-  --text-muted: #64748b; /* Slate 500 */
+  /* ========================================
+     PREMIUM EMERALD + GOLD THEME
+     A sophisticated dark theme with emerald 
+     green and gold accents - conveying trust, 
+     wealth, and luxury banking aesthetics
+     ======================================== */
 
-  /* Accents */
-  --primary: #8b5cf6; /* Violet 500 */
-  --primary-hover: #7c3aed; /* Violet 600 */
-  --primary-glow: rgba(139, 92, 246, 0.3);
+  /* Core Backgrounds - Deep Dark */
+  --bg-primary: #050a08;
+  /* Near Black with slight green tint */
+  --bg-secondary: #0c1610;
+  /* Dark Forest */
+  --bg-tertiary: #152419;
+  /* Deep Green Tinted */
+  --bg-card: linear-gradient(145deg, #0f1a14 0%, #0a100d 100%);
 
-  --success: #10b981; /* Emerald 500 */
-  --danger: #ef4444; /* Rose 500 */
-  --warning: #f59e0b; /* Amber 500 */
-  --info: #3b82f6; /* Blue 500 */
+  /* Text */
+  --text-primary: #f0f5f2;
+  --text-secondary: #a8c4b5;
+  --text-muted: #5c7a6b;
+
+  /* Primary Accent - Emerald */
+  --primary: #10b981;
+  /* Emerald Green */
+  --primary-hover: #059669;
+  /* Darker Emerald */
+  --primary-glow: rgba(16, 185, 129, 0.25);
+  --primary-soft: rgba(16, 185, 129, 0.1);
+
+  /* Secondary Accent - Gold */
+  --gold: #d4af37;
+  /* Rich Gold */
+  --gold-light: #f4d03f;
+  /* Light Gold */
+  --gold-glow: rgba(212, 175, 55, 0.25);
+
+  /* Status Colors */
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+
+  /* Chart Palette - Jewel Tones */
+  --chart-1: #10b981;
+  /* Emerald */
+  --chart-2: #d4af37;
+  /* Gold */
+  --chart-3: #06b6d4;
+  /* Cyan */
+  --chart-4: #8b5cf6;
+  /* Purple */
+  --chart-5: #ec4899;
+  /* Pink */
 
   /* Structural */
   --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
   --radius-full: 9999px;
 
-  --header-height: 4rem;
+  --header-height: 3.5rem;
   --bottom-nav-height: 4.5rem;
-}
-
-/* Light Mode Override (if needed later) */
-@media (prefers-color-scheme: light) {
-  /* Keeping it dark-mode first for now as per "premium finance" aesthetic request */
 }
 
 * {
@@ -39,14 +69,19 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-bottom: var(--bottom-nav-height); /* Space for bottom nav */
+  padding-bottom: calc(var(--bottom-nav-height) + 1rem);
+  min-height: 100vh;
 }
 
 a {
@@ -59,45 +94,323 @@ button {
   border: none;
   background: none;
   font-family: inherit;
+  color: inherit;
 }
 
-/* Utility Classes */
+input,
+select,
+textarea {
+  font-family: inherit;
+  outline: none;
+}
+
+/* ========================================
+   LAYOUT UTILITIES
+   ======================================== */
 .container {
-  max-width: 480px; /* Mobile width constraint */
+  max-width: 480px;
   margin: 0 auto;
   padding: 1rem;
   min-height: 100vh;
 }
 
 .card {
+  background: var(--bg-card);
   background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  border: 1px solid var(--bg-tertiary);
-  margin-bottom: 1rem;
+  /* Fallback */
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.heading-lg { font-size: 1.875rem; font-weight: 700; letter-spacing: -0.025em; }
-.heading-md { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.025em; }
-.heading-sm { font-size: 1.25rem; font-weight: 600; }
+.card-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
 
-.text-sm { font-size: 0.875rem; }
-.text-xs { font-size: 0.75rem; }
+/* ========================================
+   TYPOGRAPHY
+   ======================================== */
+.heading-xl {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
 
-.flex-center { display: flex; align-items: center; justify-content: center; }
-.flex-between { display: flex; align-items: center; justify-content: space-between; }
-.flex-col { display: flex; flex-direction: column; }
+.heading-lg {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
 
-.text-success { color: var(--success); }
-.text-danger { color: var(--danger); }
-.text-muted { color: var(--text-muted); }
+.heading-md {
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
 
-/* Animation Utils */
+.heading-sm {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* ========================================
+   FLEXBOX UTILITIES
+   ======================================== */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-sm {
+  gap: 0.5rem;
+}
+
+.gap-md {
+  gap: 1rem;
+}
+
+.gap-lg {
+  gap: 1.5rem;
+}
+
+/* ========================================
+   COLORS
+   ======================================== */
+.text-primary-color {
+  color: var(--primary);
+}
+
+.text-success {
+  color: var(--success);
+}
+
+.text-danger {
+  color: var(--danger);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.text-info {
+  color: var(--info);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.bg-primary-soft {
+  background: var(--primary-soft);
+}
+
+.bg-success-soft {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.bg-danger-soft {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+.btn {
+  padding: 0.875rem 1.5rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  color: white;
+  box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--primary-glow);
+}
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================
+   INPUTS
+   ======================================== */
+.input {
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
 .fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.35s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   PROGRESS / BARS
+   ======================================== */
+.progress-bar {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+}
+
+/* ========================================
+   BOTTOM NAVIGATION
+   ======================================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-height);
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 1) 100%);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 0.5rem;
+  z-index: 100;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  font-size: 0.7rem;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ========================================
+   SCROLLBAR (Webkit)
+   ======================================== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
