@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { User, LogOut, Settings, Award, ChevronRight, Lock, Shield } from 'lucide-react';
+import { LogOut, Settings, Award, ChevronRight, Lock, Shield } from 'lucide-react';
 import { PinLock } from './PinLock';
 
 export const Profile: React.FC = () => {

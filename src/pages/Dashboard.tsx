@@ -5,7 +5,7 @@ import { db } from '../services/storage';
 import { FinancialEngine } from '../services/finance';
 import { AddTransactionModal } from '../components/modals/AddTransactionModal';
 import ReactECharts from 'echarts-for-react';
-import { TrendingUp, TrendingDown, ChevronRight, Wallet, CreditCard, BarChart3 } from 'lucide-react';
+import { TrendingUp, ChevronRight, Wallet, CreditCard, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
