@@ -57,7 +57,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 bottom: 0,
                 left: 0,
                 right: 0,
-                height: 'var(--bottom-nav-height)',
+                height: 'calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px))',
+                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
                 background: 'linear-gradient(180deg, rgba(10,16,13,0.95) 0%, rgba(5,10,8,1) 100%)',
                 backdropFilter: 'blur(20px)',
                 borderTop: '1px solid rgba(16,185,129,0.1)',
@@ -67,9 +68,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 zIndex: 100
             }}>
                 <NavItem to="/" icon={<Home size={22} />} label="Home" active={isActive('/')} />
-                <NavItem to="/expenses" icon={<Wallet size={22} />} label="Expenses" active={isActive('/expenses')} />
-                <NavItem to="/investments" icon={<PieChart size={22} />} label="Invest" active={isActive('/investments')} />
-                <NavItem to="/advisor" icon={<ShieldAlert size={22} />} label="Advisor" active={isActive('/advisor')} />
+                <NavItem to="/income" icon={<Wallet size={22} />} label="Income" active={isActive('/income')} />
+                <NavItem to="/expenses" icon={<PieChart size={22} />} label="Expenses" active={isActive('/expenses')} />
+                <NavItem to="/investments" icon={<ShieldAlert size={22} />} label="Invest" active={isActive('/investments')} />
                 <NavItem to="/profile" icon={<User size={22} />} label="Profile" active={isActive('/profile')} />
             </nav>
         </div>

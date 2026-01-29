@@ -23,23 +23,33 @@ const Dashboard: React.FC = () => {
 
     if (!user) return null;
 
+    // Current month filter
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
     // Calculations
     const income = user.monthlyIncome;
-    const expenses = transactions?.filter(t => t.type === 'Expense' && t.category !== 'Investment').reduce((s, t) => s + t.amount, 0) || 0;
-    const investments = transactions?.filter(t => t.category === 'Investment').reduce((s, t) => s + t.amount, 0) || 0;
+    const expenses = transactions?.filter(t => {
+        if (t.type !== 'Expense' || t.category?.startsWith('Investment')) return false;
+        const d = new Date(t.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    }).reduce((s, t) => s + t.amount, 0) || 0;
+
+    const investments = transactions?.filter(t => t.category?.startsWith('Investment')).reduce((s, t) => s + t.amount, 0) || 0;
     const loanBalance = loans?.reduce((s, l) => s + l.remainingPrincipal + (l.interestAccrued || 0), 0) || 0;
 
     const savingsRate = income > 0 ? Math.round(((income - expenses) / income) * 100) : 0;
     const netWorth = investments - loanBalance;
 
-    // Health Status - Updated colors for new theme
+    // Health Status
     let healthStatus = 'Poor';
     let healthColor = '#ef4444';
     if (savingsRate >= 30) { healthStatus = 'Excellent'; healthColor = '#10b981'; }
     else if (savingsRate >= 15) { healthStatus = 'Good'; healthColor = '#d4af37'; }
     else if (savingsRate >= 5) { healthStatus = 'Fair'; healthColor = '#f59e0b'; }
 
-    // Allocation for ECharts Donut - Emerald/Gold theme
+    // Allocation for ECharts Donut
     const allocation = FinancialEngine.getAssetAllocation(user.bracket);
     const pieOption = {
         tooltip: { trigger: 'item', backgroundColor: '#0f1a14', borderColor: 'rgba(16,185,129,0.2)', textStyle: { color: '#f0f5f2' } },
@@ -60,19 +70,56 @@ const Dashboard: React.FC = () => {
         }]
     };
 
-    // Trend data - Updated with new theme color
-    const trendData = transactions?.slice(-7).map(t => t.amount) || [];
+    // Spending Trend - Group expenses by last 7 days
+    const last7Days = [...Array(7)].map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return d;
+    });
+
+    const dailySpending = last7Days.map(day => {
+        const dayExpenses = transactions?.filter(t => {
+            if (t.type !== 'Expense' || t.category?.startsWith('Investment')) return false;
+            const tDate = new Date(t.date);
+            return tDate.toDateString() === day.toDateString();
+        }) || [];
+        return dayExpenses.reduce((sum, t) => sum + t.amount, 0);
+    });
+
+    const dayLabels = last7Days.map(d => d.toLocaleDateString('en', { weekday: 'short' }));
+
     const trendOption = {
-        grid: { left: 0, right: 0, top: 10, bottom: 0 },
-        xAxis: { type: 'category', show: false, data: trendData.map((_, i) => i) },
+        grid: { left: 0, right: 0, top: 10, bottom: 20 },
+        xAxis: {
+            type: 'category',
+            data: dayLabels,
+            axisLine: { show: false },
+            axisTick: { show: false },
+            axisLabel: { color: '#5c7a6b', fontSize: 10 }
+        },
         yAxis: { type: 'value', show: false },
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: '#0f1a14',
+            borderColor: 'rgba(16,185,129,0.2)',
+            textStyle: { color: '#f0f5f2', fontSize: 12 },
+            formatter: (params: any) => `${params[0].name}: ₹${params[0].value.toLocaleString()}`
+        },
         series: [{
-            data: trendData.length > 0 ? trendData : [1000, 2000, 1500, 3000, 2500, 2800, 3200],
-            type: 'line',
-            smooth: true,
-            lineStyle: { color: '#10b981', width: 2 },
-            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(16,185,129,0.3)' }, { offset: 1, color: 'transparent' }] } },
-            symbol: 'none'
+            data: dailySpending.some(v => v > 0) ? dailySpending : [500, 1200, 800, 1500, 2000, 1800, 900],
+            type: 'bar',
+            barWidth: '50%',
+            itemStyle: {
+                color: {
+                    type: 'linear',
+                    x: 0, y: 0, x2: 0, y2: 1,
+                    colorStops: [
+                        { offset: 0, color: '#10b981' },
+                        { offset: 1, color: 'rgba(16,185,129,0.3)' }
+                    ]
+                },
+                borderRadius: [4, 4, 0, 0]
+            }
         }]
     };
 
@@ -121,10 +168,10 @@ const Dashboard: React.FC = () => {
                     <p className="text-xs text-muted text-center" style={{ marginTop: '0.5rem' }}>Target Allocation</p>
                 </div>
 
-                {/* Income */}
+                {/* Income - Now navigates to /income */}
                 <button
                     className="card"
-                    onClick={() => navigate('/profile')}
+                    onClick={() => navigate('/income')}
                     style={{ padding: '1rem', textAlign: 'left', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' }}
                 >
                     <div className="flex-center" style={{ gap: '0.5rem', marginBottom: '0.5rem' }}>
@@ -148,13 +195,13 @@ const Dashboard: React.FC = () => {
                 </button>
             </div>
 
-            {/* Spending Trend */}
+            {/* Spending Trend - Now shows daily bar chart */}
             <div className="card" style={{ padding: '1rem', marginBottom: '1rem' }}>
                 <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
-                    <span className="font-bold text-sm">Spending Trend</span>
+                    <span className="font-bold text-sm">Spending Trend (7 Days)</span>
                     <BarChart3 size={14} className="text-muted" />
                 </div>
-                <ReactECharts option={trendOption} style={{ height: 80 }} />
+                <ReactECharts option={trendOption} style={{ height: 100 }} />
             </div>
 
             {/* Quick Actions */}

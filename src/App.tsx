@@ -6,10 +6,11 @@ import { Welcome } from './pages/Welcome';
 import { Onboarding } from './pages/Onboarding';
 import { PinLock } from './pages/PinLock';
 
-// Placeholder Pages
+// Pages
 import Dashboard from './pages/Dashboard';
 import Investments from './pages/Investments';
 import Expenses from './pages/Expenses';
+import Income from './pages/Income';
 import Goals from './pages/Goals';
 import Advisor from './pages/Advisor';
 import Profile from './pages/Profile';
@@ -88,6 +89,7 @@ function AppRoutes() {
 
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/expenses" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
+      <Route path="/income" element={<ProtectedRoute><Income /></ProtectedRoute>} />
       <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
       <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
       <Route path="/advisor" element={<ProtectedRoute><Advisor /></ProtectedRoute>} />

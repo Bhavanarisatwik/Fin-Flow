@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../services/storage';
 import { AddTransactionModal } from '../components/modals/AddTransactionModal';
 import ReactECharts from 'echarts-for-react';
-import { Home, Utensils, Car, Gamepad2, ShoppingBag, Heart, GraduationCap, MoreHorizontal, Plus } from 'lucide-react';
+import { Home, Utensils, Car, Gamepad2, ShoppingBag, Heart, GraduationCap, MoreHorizontal, Plus, Clock, Trash2 } from 'lucide-react';
 
 // Category config with icons and colors - Emerald/Gold theme
 const CATEGORY_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
@@ -22,6 +22,7 @@ const CATEGORY_CONFIG: Record<string, { icon: React.ReactNode; color: string }> 
 export const Expenses: React.FC = () => {
     const { user } = useUser();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
 
     const transactions = useLiveQuery(() =>
         user ? db.transactions.where({ userId: user.id }).toArray() : []
@@ -35,12 +36,17 @@ export const Expenses: React.FC = () => {
     const currentYear = now.getFullYear();
 
     const monthlyExpenses = transactions?.filter(t => {
-        if (t.type !== 'Expense' || t.category === 'Investment') return false;
+        if (t.type !== 'Expense' || t.category?.startsWith('Investment')) return false;
         const d = new Date(t.date);
         return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
     }) || [];
 
     const totalExpenses = monthlyExpenses.reduce((sum, t) => sum + t.amount, 0);
+
+    // All expenses for history (sorted by date desc)
+    const allExpenses = transactions?.filter(t =>
+        t.type === 'Expense' && !t.category?.startsWith('Investment')
+    ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) || [];
 
     // Group by category
     const categoryTotals = monthlyExpenses.reduce((acc, t) => {
@@ -82,8 +88,19 @@ export const Expenses: React.FC = () => {
     const sortedCategories = Object.entries(categoryTotals)
         .sort((a, b) => b[1] - a[1]);
 
+    const deleteExpense = async (id: string) => {
+        if (confirm('Delete this expense?')) {
+            await db.transactions.delete(id);
+        }
+    };
+
+    const formatDate = (dateStr: string) => {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' });
+    };
+
     return (
-        <div style={{ padding: '0 1rem' }} className="fade-in">
+        <div style={{ padding: '0 1rem', paddingBottom: '2rem' }} className="fade-in">
             {/* Header */}
             <h2 className="heading-md" style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Expenses</h2>
 
@@ -123,7 +140,7 @@ export const Expenses: React.FC = () => {
             </div>
 
             {/* Category Breakdown */}
-            <div className="card" style={{ padding: '1.25rem' }}>
+            <div className="card" style={{ padding: '1.25rem', marginBottom: '1rem' }}>
                 <h3 className="text-sm font-bold" style={{ marginBottom: '1rem' }}>Category Breakdown</h3>
                 {sortedCategories.length > 0 ? (
                     <div className="flex-col" style={{ gap: '1rem' }}>
@@ -149,7 +166,6 @@ export const Expenses: React.FC = () => {
                                         </div>
                                         <span className="font-bold" style={{ color: config.color }}>₹ {amount.toLocaleString()}</span>
                                     </div>
-                                    {/* Progress bar for category */}
                                     <div style={{ height: 4, background: 'var(--bg-tertiary)', borderRadius: 2, marginLeft: 48 }}>
                                         <div style={{
                                             height: '100%',
@@ -165,6 +181,72 @@ export const Expenses: React.FC = () => {
                     </div>
                 ) : (
                     <p className="text-muted text-sm text-center">Add an expense to see breakdown</p>
+                )}
+            </div>
+
+            {/* Expense History Section */}
+            <div className="card" style={{ padding: '1.25rem' }}>
+                <div
+                    className="flex-between"
+                    style={{ marginBottom: showHistory ? '1rem' : 0, cursor: 'pointer' }}
+                    onClick={() => setShowHistory(!showHistory)}
+                >
+                    <div className="flex-center" style={{ gap: '0.5rem' }}>
+                        <Clock size={18} style={{ color: '#10b981' }} />
+                        <h3 className="text-sm font-bold">Expense History</h3>
+                    </div>
+                    <span className="text-xs text-muted">{allExpenses.length} transactions</span>
+                </div>
+
+                {showHistory && (
+                    <div className="flex-col" style={{ gap: '0.75rem', maxHeight: 300, overflowY: 'auto' }}>
+                        {allExpenses.length > 0 ? allExpenses.slice(0, 20).map(expense => {
+                            const config = CATEGORY_CONFIG[expense.category] || CATEGORY_CONFIG['Other'];
+                            return (
+                                <div
+                                    key={expense.id}
+                                    className="flex-between"
+                                    style={{
+                                        padding: '0.75rem',
+                                        background: 'rgba(0,0,0,0.2)',
+                                        borderRadius: 12,
+                                        border: '1px solid rgba(255,255,255,0.05)'
+                                    }}
+                                >
+                                    <div className="flex-center" style={{ gap: '0.75rem' }}>
+                                        <div style={{
+                                            width: 36, height: 36, borderRadius: 10,
+                                            background: `${config.color}22`,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            color: config.color
+                                        }}>
+                                            {config.icon}
+                                        </div>
+                                        <div>
+                                            <p className="font-medium" style={{ fontSize: '0.9rem' }}>{expense.category}</p>
+                                            <p className="text-xs text-muted">{formatDate(expense.date)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex-center" style={{ gap: '0.75rem' }}>
+                                        <span style={{ fontWeight: 600, color: '#ef4444' }}>-₹{expense.amount.toLocaleString()}</span>
+                                        <button
+                                            onClick={() => deleteExpense(expense.id)}
+                                            style={{
+                                                padding: '0.375rem',
+                                                borderRadius: 8,
+                                                background: 'rgba(239,68,68,0.1)',
+                                                color: '#ef4444'
+                                            }}
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        }) : (
+                            <p className="text-muted text-sm text-center">No expenses yet</p>
+                        )}
+                    </div>
                 )}
             </div>
 

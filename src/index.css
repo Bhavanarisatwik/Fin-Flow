@@ -61,12 +61,20 @@
 
   --header-height: 3.5rem;
   --bottom-nav-height: 4.5rem;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: auto;
+  min-height: 100%;
 }
 
 html {
@@ -80,8 +88,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  padding-bottom: calc(var(--bottom-nav-height) + 1rem);
-  min-height: 100vh;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--bottom-nav-height) + var(--safe-area-bottom) + 1rem);
 }
 
 a {
@@ -95,6 +103,7 @@ button {
   background: none;
   font-family: inherit;
   color: inherit;
+  touch-action: manipulation;
 }
 
 input,
@@ -102,6 +111,7 @@ select,
 textarea {
   font-family: inherit;
   outline: none;
+  touch-action: manipulation;
 }
 
 /* ========================================
@@ -109,6 +119,7 @@ textarea {
    ======================================== */
 .container {
   max-width: 480px;
+  width: 100%;
   margin: 0 auto;
   padding: 1rem;
   min-height: 100vh;
