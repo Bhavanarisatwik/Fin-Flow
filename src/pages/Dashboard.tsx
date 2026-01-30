@@ -5,7 +5,7 @@ import { db } from '../services/storage';
 import { FinancialEngine } from '../services/finance';
 import { AddTransactionModal } from '../components/modals/AddTransactionModal';
 import ReactECharts from 'echarts-for-react';
-import { TrendingUp, ChevronRight, Wallet, CreditCard, BarChart3 } from 'lucide-react';
+import { TrendingUp, ChevronRight, Wallet, CreditCard, BarChart3, PieChart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
@@ -44,33 +44,49 @@ const Dashboard: React.FC = () => {
 
     // Health Status
     let healthStatus = 'Poor';
-    let healthColor = '#ef4444';
-    if (savingsRate >= 30) { healthStatus = 'Excellent'; healthColor = '#10b981'; }
-    else if (savingsRate >= 15) { healthStatus = 'Good'; healthColor = '#d4af37'; }
-    else if (savingsRate >= 5) { healthStatus = 'Fair'; healthColor = '#f59e0b'; }
+    let healthBg = 'rgba(251, 113, 133, 0.15)';
+    let healthColor = '#FB7185';
+    if (savingsRate >= 30) {
+        healthStatus = 'Excellent';
+        healthBg = 'rgba(45, 212, 167, 0.15)';
+        healthColor = '#2DD4A7';
+    } else if (savingsRate >= 15) {
+        healthStatus = 'Good';
+        healthBg = 'rgba(74, 222, 128, 0.15)';
+        healthColor = '#4ADE80';
+    } else if (savingsRate >= 5) {
+        healthStatus = 'Fair';
+        healthBg = 'rgba(245, 158, 11, 0.15)';
+        healthColor = '#F59E0B';
+    }
 
-    // Allocation for ECharts Donut
+    // Allocation for ECharts Donut - Semantic colors
     const allocation = FinancialEngine.getAssetAllocation(user.bracket);
     const pieOption = {
-        tooltip: { trigger: 'item', backgroundColor: '#0f1a14', borderColor: 'rgba(16,185,129,0.2)', textStyle: { color: '#f0f5f2' } },
+        tooltip: {
+            trigger: 'item',
+            backgroundColor: '#131A22',
+            borderColor: 'rgba(255,255,255,0.05)',
+            textStyle: { color: '#E2E8F0', fontSize: 12 }
+        },
         series: [{
             type: 'pie',
             radius: ['50%', '75%'],
             center: ['50%', '50%'],
             avoidLabelOverlap: true,
-            itemStyle: { borderRadius: 6, borderColor: '#050a08', borderWidth: 2 },
+            itemStyle: { borderRadius: 6, borderColor: '#0C1117', borderWidth: 2 },
             label: { show: false },
             data: [
-                { value: allocation.mutualFunds * 100, name: 'Mutual Funds', itemStyle: { color: '#10b981' } },
-                { value: allocation.stocks * 100, name: 'Stocks', itemStyle: { color: '#d4af37' } },
-                { value: allocation.debtFunds * 100, name: 'Bonds', itemStyle: { color: '#06b6d4' } },
-                { value: allocation.gold * 100, name: 'Gold', itemStyle: { color: '#f4d03f' } },
-                { value: allocation.fd * 100, name: 'FD', itemStyle: { color: '#8b5cf6' } },
+                { value: allocation.mutualFunds * 100, name: 'Mutual Funds', itemStyle: { color: '#2DD4A7' } },
+                { value: allocation.stocks * 100, name: 'Stocks', itemStyle: { color: '#C084FC' } },
+                { value: allocation.debtFunds * 100, name: 'Bonds', itemStyle: { color: '#38BDF8' } },
+                { value: allocation.gold * 100, name: 'Gold', itemStyle: { color: '#F59E0B' } },
+                { value: allocation.fd * 100, name: 'FD', itemStyle: { color: '#FB7185' } },
             ]
         }]
     };
 
-    // Spending Trend - Group expenses by last 7 days
+    // Spending Trend - Last 7 days
     const last7Days = [...Array(7)].map((_, i) => {
         const d = new Date();
         d.setDate(d.getDate() - (6 - i));
@@ -95,14 +111,14 @@ const Dashboard: React.FC = () => {
             data: dayLabels,
             axisLine: { show: false },
             axisTick: { show: false },
-            axisLabel: { color: '#5c7a6b', fontSize: 10 }
+            axisLabel: { color: '#64748B', fontSize: 10 }
         },
         yAxis: { type: 'value', show: false },
         tooltip: {
             trigger: 'axis',
-            backgroundColor: '#0f1a14',
-            borderColor: 'rgba(16,185,129,0.2)',
-            textStyle: { color: '#f0f5f2', fontSize: 12 },
+            backgroundColor: '#131A22',
+            borderColor: 'rgba(255,255,255,0.05)',
+            textStyle: { color: '#E2E8F0', fontSize: 12 },
             formatter: (params: any) => `${params[0].name}: ₹${params[0].value.toLocaleString()}`
         },
         series: [{
@@ -110,120 +126,161 @@ const Dashboard: React.FC = () => {
             type: 'bar',
             barWidth: '50%',
             itemStyle: {
-                color: {
-                    type: 'linear',
-                    x: 0, y: 0, x2: 0, y2: 1,
-                    colorStops: [
-                        { offset: 0, color: '#10b981' },
-                        { offset: 1, color: 'rgba(16,185,129,0.3)' }
-                    ]
-                },
+                color: '#FB7185',
                 borderRadius: [4, 4, 0, 0]
             }
         }]
     };
 
     return (
-        <div style={{ padding: '0 1rem' }} className="fade-in">
+        <div style={{ padding: '0 16px' }} className="fade-in">
             {/* Welcome */}
-            <div style={{ marginBottom: '1.5rem' }}>
-                <span className="text-muted text-sm">Welcome back,</span>
-                <h2 className="heading-lg">{user.name}</h2>
+            <div style={{ marginBottom: '24px' }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Welcome back,</span>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{user.name}</h2>
             </div>
 
-            {/* Net Worth Card */}
+            {/* Net Worth Card - Premium Design */}
             <div style={{
-                background: 'linear-gradient(145deg, rgba(15,26,20,0.9) 0%, rgba(10,16,13,0.95) 100%)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '1.25rem',
-                marginBottom: '1rem',
-                border: '1px solid rgba(16,185,129,0.1)'
+                background: 'var(--bg-secondary)',
+                borderRadius: '16px',
+                padding: '24px',
+                marginBottom: '16px',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-sm)'
             }}>
-                <div className="flex-between" style={{ marginBottom: '0.75rem' }}>
-                    <span className="text-sm font-medium text-muted">Net Worth</span>
-                    <TrendingUp size={16} style={{ color: '#10b981' }} />
+                <div className="flex-between" style={{ marginBottom: '8px' }}>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Net Worth</span>
+                    <TrendingUp size={16} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
                 </div>
-                <div style={{ fontSize: '1.75rem', fontWeight: 700, color: netWorth >= 0 ? '#10b981' : '#ef4444' }}>
+                <div style={{
+                    fontSize: '2rem',
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
+                    marginBottom: '12px'
+                }}>
                     ₹ {netWorth.toLocaleString()}
                 </div>
-                <div className="flex-between" style={{ marginTop: '0.75rem' }}>
-                    <span className="text-sm text-muted">Savings Rate:</span>
-                    <span className="font-bold" style={{ color: healthColor }}>{savingsRate}%</span>
+                <div className="flex-between" style={{ marginBottom: '16px' }}>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Savings Rate:</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{savingsRate}%</span>
                 </div>
-                {/* Health Badge */}
+                {/* Health Badge - Subtle */}
                 <div style={{
-                    marginTop: '0.75rem', padding: '0.5rem 1rem',
-                    background: healthColor, borderRadius: 'var(--radius-full)',
-                    textAlign: 'center', fontWeight: 600
+                    padding: '10px 16px',
+                    background: healthBg,
+                    borderRadius: '100px',
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    color: healthColor
                 }}>
                     Financial Health: {healthStatus}
                 </div>
             </div>
 
             {/* Cards Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                 {/* Donut Chart Card */}
-                <div className="card" style={{ padding: '1rem', gridRow: 'span 2' }}>
+                <div style={{
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    border: '1px solid var(--border-subtle)',
+                    gridRow: 'span 2'
+                }}>
                     <ReactECharts option={pieOption} style={{ height: 120 }} />
-                    <p className="text-xs text-muted text-center" style={{ marginTop: '0.5rem' }}>Target Allocation</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '8px' }}>
+                        Target Allocation
+                    </p>
                 </div>
 
-                {/* Income - Now navigates to /income */}
+                {/* Income Card */}
                 <button
-                    className="card"
                     onClick={() => navigate('/income')}
-                    style={{ padding: '1rem', textAlign: 'left', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' }}
+                    style={{
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '16px',
+                        padding: '16px',
+                        border: '1px solid var(--border-subtle)',
+                        textAlign: 'left'
+                    }}
                 >
-                    <div className="flex-center" style={{ gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <Wallet size={14} style={{ color: '#10b981' }} />
-                        <span className="text-xs" style={{ color: '#10b981' }}>Income</span>
+                    <div className="flex-center" style={{ gap: '8px', marginBottom: '8px' }}>
+                        <Wallet size={14} strokeWidth={1.5} style={{ color: 'var(--income)' }} />
+                        <span style={{ fontSize: '0.75rem', color: 'var(--income)' }}>Income</span>
                     </div>
-                    <div className="heading-sm" style={{ color: '#10b981' }}>₹ {income.toLocaleString()}</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--income)' }}>
+                        ₹ {income.toLocaleString()}
+                    </div>
                 </button>
 
-                {/* Expenses */}
+                {/* Expenses Card */}
                 <button
-                    className="card"
                     onClick={() => navigate('/expenses')}
-                    style={{ padding: '1rem', textAlign: 'left', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}
+                    style={{
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '16px',
+                        padding: '16px',
+                        border: '1px solid var(--border-subtle)',
+                        textAlign: 'left'
+                    }}
                 >
-                    <div className="flex-center" style={{ gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <CreditCard size={14} style={{ color: '#ef4444' }} />
-                        <span className="text-xs" style={{ color: '#ef4444' }}>Expenses</span>
+                    <div className="flex-center" style={{ gap: '8px', marginBottom: '8px' }}>
+                        <CreditCard size={14} strokeWidth={1.5} style={{ color: 'var(--expense)' }} />
+                        <span style={{ fontSize: '0.75rem', color: 'var(--expense)' }}>Expenses</span>
                     </div>
-                    <div className="heading-sm" style={{ color: '#ef4444' }}>₹ {expenses.toLocaleString()}</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--expense)' }}>
+                        ₹ {expenses.toLocaleString()}
+                    </div>
                 </button>
             </div>
 
-            {/* Spending Trend - Now shows daily bar chart */}
-            <div className="card" style={{ padding: '1rem', marginBottom: '1rem' }}>
-                <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
-                    <span className="font-bold text-sm">Spending Trend (7 Days)</span>
-                    <BarChart3 size={14} className="text-muted" />
+            {/* Spending Trend */}
+            <div style={{
+                background: 'var(--bg-secondary)',
+                borderRadius: '16px',
+                padding: '16px',
+                border: '1px solid var(--border-subtle)',
+                marginBottom: '16px'
+            }}>
+                <div className="flex-between" style={{ marginBottom: '8px' }}>
+                    <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                        Spending (7 Days)
+                    </span>
+                    <BarChart3 size={14} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
                 </div>
                 <ReactECharts option={trendOption} style={{ height: 100 }} />
             </div>
 
-            {/* Quick Actions */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+            {/* Quick Actions - Button Hierarchy */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                {/* Primary Action */}
                 <button
                     onClick={() => setIsModalOpen('Expense')}
                     style={{
-                        padding: '0.875rem', borderRadius: 'var(--radius-md)',
-                        background: 'linear-gradient(145deg, rgba(15,26,20,0.9), rgba(10,16,13,0.95))',
-                        border: '1px solid rgba(16,185,129,0.1)',
-                        color: 'white', fontWeight: 500, fontSize: '0.875rem'
+                        padding: '14px',
+                        borderRadius: '100px',
+                        background: 'var(--primary)',
+                        color: '#0C1117',
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                        boxShadow: 'var(--shadow-md)'
                     }}
                 >
                     + Add Expense
                 </button>
+                {/* Secondary Action - Outline */}
                 <button
                     onClick={() => setIsModalOpen('Invest')}
                     style={{
-                        padding: '0.875rem', borderRadius: 'var(--radius-md)',
-                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        color: 'white', fontWeight: 600, fontSize: '0.875rem',
-                        boxShadow: '0 2px 10px rgba(16,185,129,0.3)'
+                        padding: '14px',
+                        borderRadius: '100px',
+                        background: 'transparent',
+                        color: 'var(--primary)',
+                        fontWeight: 600,
+                        fontSize: '0.875rem',
+                        border: '2px solid var(--primary)'
                     }}
                 >
                     + Invest
@@ -231,16 +288,52 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Quick Links */}
-            <div className="card" style={{ padding: '0' }}>
-                <button onClick={() => navigate('/goals')} className="flex-between" style={{ width: '100%', padding: '1rem', borderBottom: '1px solid var(--bg-tertiary)' }}>
-                    <span className="font-medium">My Goals</span>
-                    <ChevronRight size={16} className="text-muted" />
+            <div style={{
+                background: 'var(--bg-secondary)',
+                borderRadius: '16px',
+                border: '1px solid var(--border-subtle)',
+                overflow: 'hidden'
+            }}>
+                <button
+                    onClick={() => navigate('/categories')}
+                    className="flex-between"
+                    style={{
+                        width: '100%',
+                        padding: '16px',
+                        borderBottom: '1px solid var(--border-subtle)'
+                    }}
+                >
+                    <div className="flex-center" style={{ gap: '12px' }}>
+                        <PieChart size={18} strokeWidth={1.5} style={{ color: 'var(--primary)' }} />
+                        <span style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>Categories</span>
+                    </div>
+                    <ChevronRight size={16} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
                 </button>
-                <button onClick={() => navigate('/loans')} className="flex-between" style={{ width: '100%', padding: '1rem' }}>
-                    <span className="font-medium">Manage Loans</span>
-                    <div className="flex-center" style={{ gap: '0.5rem' }}>
-                        {loanBalance > 0 && <span className="text-xs" style={{ color: '#ef4444' }}>₹{loanBalance.toLocaleString()}</span>}
-                        <ChevronRight size={16} className="text-muted" />
+                <button
+                    onClick={() => navigate('/goals')}
+                    className="flex-between"
+                    style={{
+                        width: '100%',
+                        padding: '16px',
+                        borderBottom: '1px solid var(--border-subtle)'
+                    }}
+                >
+                    <span style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>My Goals</span>
+                    <ChevronRight size={16} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                </button>
+                <button
+                    onClick={() => navigate('/loans')}
+                    className="flex-between"
+                    style={{ width: '100%', padding: '16px' }}
+                >
+                    <span style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>Manage Loans</span>
+                    <div className="flex-center" style={{ gap: '8px' }}>
+                        {loanBalance > 0 && (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--loan)' }}>
+                                ₹{loanBalance.toLocaleString()}
+                            </span>
+                        )}
+                        <ChevronRight size={16} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
                     </div>
                 </button>
             </div>

@@ -17,8 +17,8 @@ const PremiumInput: React.FC<{
     prefix?: string;
 }> = ({ icon, label, value, onChange, placeholder, type = 'text', prefix }) => (
     <div style={{
-        background: 'linear-gradient(145deg, rgba(16,185,129,0.06) 0%, rgba(16,185,129,0.02) 100%)',
-        border: '1px solid rgba(16,185,129,0.15)',
+        background: 'linear-gradient(145deg, rgba(45,212,167,0.06) 0%, rgba(45,212,167,0.02) 100%)',
+        border: '1px solid rgba(45,212,167,0.15)',
         borderRadius: 16,
         padding: '0.875rem 1rem',
         transition: 'all 0.2s ease'
@@ -27,7 +27,7 @@ const PremiumInput: React.FC<{
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
-            color: '#10b981',
+            color: '#2DD4A7',
             fontSize: '0.7rem',
             fontWeight: 600,
             textTransform: 'uppercase',
@@ -38,7 +38,7 @@ const PremiumInput: React.FC<{
             {label}
         </label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-            {prefix && <span style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: 600 }}>{prefix}</span>}
+            {prefix && <span style={{ color: '#2DD4A7', fontSize: '1.25rem', fontWeight: 600 }}>{prefix}</span>}
             <input
                 type={type}
                 value={value}
@@ -100,7 +100,7 @@ export const Onboarding: React.FC = () => {
             <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                 <h1 style={{
                     fontSize: '2.25rem', fontWeight: 700,
-                    background: 'linear-gradient(135deg, #10b981 0%, #d4af37 50%, #f4d03f 100%)',
+                    background: 'linear-gradient(135deg, #2DD4A7 0%, #F59E0B 50%, #FBBF24 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent'
                 }}>
@@ -114,10 +114,10 @@ export const Onboarding: React.FC = () => {
                 <div className="flex-col fade-in" style={{ gap: '1.25rem' }}>
                     {/* Welcome Card */}
                     <div style={{
-                        background: 'linear-gradient(145deg, rgba(15,26,20,0.9) 0%, rgba(10,16,13,0.95) 100%)',
+                        background: 'linear-gradient(145deg, rgba(28,33,40,0.9) 0%, rgba(22,27,34,0.95) 100%)',
                         borderRadius: 20,
                         padding: '1.5rem',
-                        border: '1px solid rgba(16,185,129,0.1)',
+                        border: '1px solid rgba(45,212,167,0.1)',
                         textAlign: 'center',
                         marginBottom: '0.5rem'
                     }}>
@@ -146,10 +146,10 @@ export const Onboarding: React.FC = () => {
 
                     {/* City Tier */}
                     <div style={{
-                        background: 'linear-gradient(145deg, rgba(15,26,20,0.9) 0%, rgba(10,16,13,0.95) 100%)',
+                        background: 'linear-gradient(145deg, rgba(28,33,40,0.9) 0%, rgba(22,27,34,0.95) 100%)',
                         borderRadius: 20,
                         padding: '1.25rem',
-                        border: '1px solid rgba(16,185,129,0.08)'
+                        border: '1px solid rgba(45,212,167,0.08)'
                     }}>
                         <label style={{
                             display: 'flex',
@@ -180,16 +180,16 @@ export const Onboarding: React.FC = () => {
                                         justifyContent: 'space-between',
                                         padding: '0.875rem 1rem',
                                         borderRadius: 12,
-                                        background: cityTier === tier.id ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.03)',
-                                        border: `1px solid ${cityTier === tier.id ? 'rgba(16,185,129,0.4)' : 'rgba(255,255,255,0.05)'}`,
+                                        background: cityTier === tier.id ? 'rgba(45,212,167,0.15)' : 'rgba(255,255,255,0.03)',
+                                        border: `1px solid ${cityTier === tier.id ? 'rgba(45,212,167,0.4)' : 'rgba(255,255,255,0.05)'}`,
                                         transition: 'all 0.2s ease'
                                     }}
                                 >
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                         <span style={{
                                             width: 18, height: 18, borderRadius: '50%',
-                                            border: `2px solid ${cityTier === tier.id ? '#10b981' : 'rgba(255,255,255,0.2)'}`,
-                                            background: cityTier === tier.id ? '#10b981' : 'transparent',
+                                            border: `2px solid ${cityTier === tier.id ? '#2DD4A7' : 'rgba(255,255,255,0.2)'}`,
+                                            background: cityTier === tier.id ? '#2DD4A7' : 'transparent',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center'
                                         }}>
                                             {cityTier === tier.id && <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'white' }} />}
@@ -204,10 +204,10 @@ export const Onboarding: React.FC = () => {
 
                     {/* Risk Profile */}
                     <div style={{
-                        background: 'linear-gradient(145deg, rgba(15,26,20,0.9) 0%, rgba(10,16,13,0.95) 100%)',
+                        background: 'linear-gradient(145deg, rgba(28,33,40,0.9) 0%, rgba(22,27,34,0.95) 100%)',
                         borderRadius: 20,
                         padding: '1.25rem',
-                        border: '1px solid rgba(16,185,129,0.08)'
+                        border: '1px solid rgba(45,212,167,0.08)'
                     }}>
                         <label style={{
                             display: 'flex',
@@ -225,8 +225,8 @@ export const Onboarding: React.FC = () => {
                         </label>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                             {([
-                                { id: 'Conservative', color: '#10b981' },
-                                { id: 'Balanced', color: '#d4af37' },
+                                { id: 'Conservative', color: '#2DD4A7' },
+                                { id: 'Balanced', color: '#F59E0B' },
                                 { id: 'Aggressive', color: '#ef4444' },
                             ] as const).map(risk => (
                                 <button
@@ -262,12 +262,12 @@ export const Onboarding: React.FC = () => {
                             padding: '1rem',
                             borderRadius: 'var(--radius-full)',
                             background: name && age
-                                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                                ? 'linear-gradient(135deg, #2DD4A7 0%, #26B896 100%)'
                                 : 'rgba(255,255,255,0.1)',
                             color: name && age ? 'white' : 'var(--text-muted)',
                             fontWeight: 600,
                             fontSize: '1rem',
-                            boxShadow: name && age ? '0 4px 20px rgba(16,185,129,0.4)' : 'none',
+                            boxShadow: name && age ? '0 4px 20px rgba(45,212,167,0.4)' : 'none',
                             transition: 'all 0.3s ease'
                         }}
                     >
@@ -276,7 +276,7 @@ export const Onboarding: React.FC = () => {
 
                     {/* Progress Dots */}
                     <div className="flex-center" style={{ gap: '0.5rem' }}>
-                        <div style={{ width: 24, height: 4, borderRadius: 2, background: '#10b981' }} />
+                        <div style={{ width: 24, height: 4, borderRadius: 2, background: '#2DD4A7' }} />
                         <div style={{ width: 24, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.1)' }} />
                     </div>
                 </div>
@@ -288,10 +288,10 @@ export const Onboarding: React.FC = () => {
 
                     {/* Income Header */}
                     <div style={{
-                        background: 'linear-gradient(145deg, rgba(15,26,20,0.9) 0%, rgba(10,16,13,0.95) 100%)',
+                        background: 'linear-gradient(145deg, rgba(28,33,40,0.9) 0%, rgba(22,27,34,0.95) 100%)',
                         borderRadius: 20,
                         padding: '1.5rem',
-                        border: '1px solid rgba(16,185,129,0.1)',
+                        border: '1px solid rgba(45,212,167,0.1)',
                         textAlign: 'center',
                         marginBottom: '0.5rem'
                     }}>
@@ -333,10 +333,10 @@ export const Onboarding: React.FC = () => {
                     {/* Total Summary */}
                     {salary && (
                         <div style={{
-                            background: 'linear-gradient(145deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 100%)',
+                            background: 'linear-gradient(145deg, rgba(45,212,167,0.12) 0%, rgba(45,212,167,0.04) 100%)',
                             borderRadius: 16,
                             padding: '1rem 1.25rem',
-                            border: '1px solid rgba(16,185,129,0.25)',
+                            border: '1px solid rgba(45,212,167,0.25)',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center'
@@ -345,7 +345,7 @@ export const Onboarding: React.FC = () => {
                             <span style={{
                                 fontSize: '1.5rem',
                                 fontWeight: 700,
-                                color: '#10b981'
+                                color: '#2DD4A7'
                             }}>
                                 ₹ {(Number(salary) + Number(freelance) + Number(otherIncome)).toLocaleString()}
                             </span>
@@ -360,12 +360,12 @@ export const Onboarding: React.FC = () => {
                             padding: '1rem',
                             borderRadius: 'var(--radius-full)',
                             background: salary
-                                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                                ? 'linear-gradient(135deg, #2DD4A7 0%, #26B896 100%)'
                                 : 'rgba(255,255,255,0.1)',
                             color: salary ? 'white' : 'var(--text-muted)',
                             fontWeight: 600,
                             fontSize: '1rem',
-                            boxShadow: salary ? '0 4px 20px rgba(16,185,129,0.4)' : 'none',
+                            boxShadow: salary ? '0 4px 20px rgba(45,212,167,0.4)' : 'none',
                             transition: 'all 0.3s ease'
                         }}
                     >
@@ -384,10 +384,12 @@ export const Onboarding: React.FC = () => {
                     {/* Progress Dots */}
                     <div className="flex-center" style={{ gap: '0.5rem' }}>
                         <div style={{ width: 24, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.1)' }} />
-                        <div style={{ width: 24, height: 4, borderRadius: 2, background: '#10b981' }} />
+                        <div style={{ width: 24, height: 4, borderRadius: 2, background: '#2DD4A7' }} />
                     </div>
                 </div>
             )}
         </div>
     );
 };
+
+

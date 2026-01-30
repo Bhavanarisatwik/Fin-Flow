@@ -40,3 +40,4 @@ export const HealthScore: React.FC<Props> = ({ user: _user }) => {
         </div>
     );
 };
+

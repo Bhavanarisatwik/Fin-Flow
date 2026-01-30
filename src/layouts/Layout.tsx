@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Wallet, PieChart, ShieldAlert, User } from 'lucide-react';
+import { Home, Wallet, PieChart, TrendingUp, User } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -12,12 +12,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
     return (
         <div className="container">
-            {/* Header with Logo and Profile */}
-            <header className="flex-between" style={{ height: 'var(--header-height)', padding: '1rem 0' }}>
+            {/* Header - Clean, minimal */}
+            <header className="flex-between" style={{ height: 'var(--header-height)', padding: '16px 0' }}>
                 <h1 style={{
-                    fontSize: '1.5rem',
+                    fontSize: '1.375rem',
                     fontWeight: 700,
-                    background: 'linear-gradient(135deg, #10b981 0%, #d4af37 50%, #f4d03f 100%)',
+                    background: 'linear-gradient(135deg, #2DD4A7 0%, #4ADE80 50%, #F59E0B 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     letterSpacing: '-0.02em'
@@ -25,33 +25,32 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     FinFlow
                 </h1>
 
-                {/* Profile Avatar */}
+                {/* Profile Avatar - Subtle */}
                 <button
                     onClick={() => navigate('/profile')}
                     style={{
                         width: 36,
                         height: 36,
                         borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        border: '2px solid rgba(212,175,55,0.3)',
+                        background: 'var(--bg-tertiary)',
+                        border: '1px solid var(--border-medium)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: 'white',
+                        color: 'var(--text-secondary)',
                         fontWeight: 600,
-                        fontSize: '0.875rem',
-                        boxShadow: '0 2px 8px rgba(16,185,129,0.3)'
+                        fontSize: '0.875rem'
                     }}
                 >
                     {user?.name?.charAt(0).toUpperCase() || 'U'}
                 </button>
             </header>
 
-            <main style={{ paddingBottom: '2rem' }}>
+            <main style={{ paddingBottom: '32px' }}>
                 {children}
             </main>
 
-            {/* Premium Bottom Nav */}
+            {/* Bottom Nav - Premium, subtle */}
             <nav style={{
                 position: 'fixed',
                 bottom: 0,
@@ -59,19 +58,19 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 right: 0,
                 height: 'calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px))',
                 paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-                background: 'linear-gradient(180deg, rgba(10,16,13,0.95) 0%, rgba(5,10,8,1) 100%)',
+                background: 'rgba(12, 17, 23, 0.95)',
                 backdropFilter: 'blur(20px)',
-                borderTop: '1px solid rgba(16,185,129,0.1)',
+                borderTop: '1px solid var(--border-subtle)',
                 display: 'flex',
                 justifyContent: 'space-around',
                 alignItems: 'center',
                 zIndex: 100
             }}>
-                <NavItem to="/" icon={<Home size={22} />} label="Home" active={isActive('/')} />
-                <NavItem to="/income" icon={<Wallet size={22} />} label="Income" active={isActive('/income')} />
-                <NavItem to="/expenses" icon={<PieChart size={22} />} label="Expenses" active={isActive('/expenses')} />
-                <NavItem to="/investments" icon={<ShieldAlert size={22} />} label="Invest" active={isActive('/investments')} />
-                <NavItem to="/profile" icon={<User size={22} />} label="Profile" active={isActive('/profile')} />
+                <NavItem to="/" icon={<Home size={22} strokeWidth={1.5} />} label="Home" active={isActive('/')} />
+                <NavItem to="/income" icon={<Wallet size={22} strokeWidth={1.5} />} label="Income" active={isActive('/income')} />
+                <NavItem to="/expenses" icon={<PieChart size={22} strokeWidth={1.5} />} label="Expenses" active={isActive('/expenses')} />
+                <NavItem to="/investments" icon={<TrendingUp size={22} strokeWidth={1.5} />} label="Invest" active={isActive('/investments')} />
+                <NavItem to="/profile" icon={<User size={22} strokeWidth={1.5} />} label="Profile" active={isActive('/profile')} />
             </nav>
         </div>
     );
@@ -79,11 +78,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
 const NavItem: React.FC<{ to: string; icon: React.ReactNode; label: string; active: boolean }> = ({ to, icon, label, active }) => (
     <Link to={to} className="flex-col flex-center" style={{
-        color: active ? 'var(--primary)' : 'var(--text-muted)',
-        gap: '0.3rem',
+        color: active ? 'var(--primary)' : 'var(--text-dim)',
+        gap: '4px',
         textDecoration: 'none',
-        transition: 'all 0.2s ease',
-        transform: active ? 'scale(1.05)' : 'scale(1)'
+        transition: 'color 0.2s ease'
     }}>
         {icon}
         <span style={{ fontSize: '0.65rem', fontWeight: active ? 600 : 400 }}>{label}</span>

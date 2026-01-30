@@ -32,3 +32,4 @@ export const NetWorthCard: React.FC<Props> = ({ user }) => {
         </div>
     );
 };
+

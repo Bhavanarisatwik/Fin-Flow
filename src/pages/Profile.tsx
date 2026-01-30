@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { LogOut, Settings, Award, ChevronRight, Lock, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Settings, Award, ChevronRight, Lock, Shield, Sliders } from 'lucide-react';
 import { PinLock } from './PinLock';
 
 export const Profile: React.FC = () => {
-    const { user, logout } = useUser();
+    const { user } = useUser();
+    const navigate = useNavigate();
     const [showPinChange, setShowPinChange] = useState(false);
     const [pinExists, setPinExists] = useState(!!localStorage.getItem('finflow_pin'));
 
     if (!user) return null;
 
-    // Show PIN setup/change modal
     if (showPinChange) {
         return (
             <div style={{ position: 'fixed', inset: 0, zIndex: 1000 }}>
@@ -30,20 +31,29 @@ export const Profile: React.FC = () => {
     }
 
     return (
-        <div style={{ padding: '0 1rem' }}>
-            <h2 className="heading-md" style={{ marginBottom: '1.5rem' }}>Profile</h2>
+        <div style={{ padding: '0 16px', paddingBottom: '32px' }} className="fade-in">
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '24px' }}>Profile</h2>
 
             {/* User Card */}
-            <div className="card flex-between" style={{ marginBottom: '2rem' }}>
-                <div className="flex-col">
-                    <span className="heading-sm">{user.name}</span>
-                    <span className="text-sm text-muted">{user.cityTier} • {user.age} Years Old</span>
+            <div style={{
+                background: 'var(--bg-secondary)',
+                borderRadius: '16px',
+                padding: '20px',
+                marginBottom: '24px',
+                border: '1px solid var(--border-subtle)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
+                <div>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.125rem' }}>{user.name}</span>
+                    <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '4px' }}>{user.cityTier} • {user.age} Years Old</p>
                 </div>
                 <div style={{
                     width: 50, height: 50, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    background: 'linear-gradient(135deg, #2DD4A7 0%, #26B896 100%)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white',
+                    color: '#0C1117',
                     fontWeight: 700,
                     fontSize: '1.25rem'
                 }}>
@@ -51,85 +61,115 @@ export const Profile: React.FC = () => {
                 </div>
             </div>
 
-            {/* Settings */}
-            <div className="flex-col" style={{ gap: '0.5rem' }}>
-                <div className="card flex-between">
-                    <div className="flex-center" style={{ gap: '0.75rem' }}>
-                        <Award size={20} style={{ color: '#10b981' }} />
-                        <span>Income Bracket</span>
+            {/* Quick Info */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+                <div className="pressable" style={{
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '14px',
+                    padding: '16px',
+                    border: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <div className="flex-center" style={{ gap: '12px' }}>
+                        <Award size={18} strokeWidth={1.5} style={{ color: '#2DD4A7' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>Income Bracket</span>
                     </div>
-                    <span className="text-sm font-medium" style={{ background: 'var(--bg-tertiary)', padding: '0.25rem 0.5rem', borderRadius: 4 }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500, background: 'var(--bg-tertiary)', padding: '4px 10px', borderRadius: 6 }}>
                         {user.bracket}
                     </span>
                 </div>
 
-                <div className="card flex-between">
-                    <div className="flex-center" style={{ gap: '0.75rem' }}>
-                        <Settings size={20} />
-                        <span>Risk Profile</span>
+                <div className="pressable" style={{
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '14px',
+                    padding: '16px',
+                    border: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <div className="flex-center" style={{ gap: '12px' }}>
+                        <Settings size={18} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>Risk Profile</span>
                     </div>
-                    <span className="text-sm font-medium">{user.riskProfile}</span>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{user.riskProfile}</span>
                 </div>
+            </div>
 
-                {/* Security Section */}
-                <div style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
-                    <span className="text-xs text-muted" style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Security
-                    </span>
-                </div>
+            {/* Settings */}
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>
+                Settings
+            </p>
 
-                <div
-                    className="card flex-between"
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button
+                    onClick={() => navigate('/settings')}
+                    className="pressable"
+                    style={{
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '14px',
+                        padding: '16px',
+                        border: '1px solid var(--border-subtle)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        width: '100%',
+                        textAlign: 'left'
+                    }}
+                >
+                    <div className="flex-center" style={{ gap: '12px' }}>
+                        <Sliders size={18} strokeWidth={1.5} style={{ color: '#C084FC' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>App Settings</span>
+                    </div>
+                    <ChevronRight size={18} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                </button>
+
+                <button
                     onClick={() => setShowPinChange(true)}
-                    style={{ cursor: 'pointer' }}
+                    className="pressable"
+                    style={{
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '14px',
+                        padding: '16px',
+                        border: '1px solid var(--border-subtle)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        width: '100%',
+                        textAlign: 'left'
+                    }}
                 >
-                    <div className="flex-center" style={{ gap: '0.75rem' }}>
-                        <Lock size={20} style={{ color: '#d4af37' }} />
-                        <span>{pinExists ? 'Change PIN' : 'Set Up PIN'}</span>
+                    <div className="flex-center" style={{ gap: '12px' }}>
+                        <Lock size={18} strokeWidth={1.5} style={{ color: '#F59E0B' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>{pinExists ? 'Change PIN' : 'Set Up PIN'}</span>
                     </div>
-                    <ChevronRight size={20} className="text-muted" />
-                </div>
+                    <ChevronRight size={18} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                </button>
 
-                <div
-                    className="card flex-between"
-                    onClick={() => window.location.href = '/loans'}
-                    style={{ cursor: 'pointer' }}
+                <button
+                    onClick={() => navigate('/loans')}
+                    className="pressable"
+                    style={{
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '14px',
+                        padding: '16px',
+                        border: '1px solid var(--border-subtle)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        width: '100%',
+                        textAlign: 'left'
+                    }}
                 >
-                    <div className="flex-center" style={{ gap: '0.75rem' }}>
-                        <Shield size={20} style={{ color: '#06b6d4' }} />
-                        <span>Manage Loans</span>
+                    <div className="flex-center" style={{ gap: '12px' }}>
+                        <Shield size={18} strokeWidth={1.5} style={{ color: '#38BDF8' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>Manage Loans</span>
                     </div>
-                    <ChevronRight size={20} className="text-muted" />
-                </div>
+                    <ChevronRight size={18} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                </button>
             </div>
-
-            {/* Danger Zone */}
-            <div style={{ marginTop: '2rem' }}>
-                <span className="text-xs text-muted" style={{ textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Danger Zone
-                </span>
-            </div>
-
-            <button
-                onClick={() => {
-                    if (confirm('Are you sure you want to reset all app data? This cannot be undone.')) {
-                        localStorage.removeItem('finflow_pin');
-                        sessionStorage.removeItem('finflow_unlocked');
-                        logout().then(() => window.location.reload());
-                    }
-                }}
-                className="card flex-center"
-                style={{
-                    width: '100%',
-                    marginTop: '0.5rem',
-                    color: 'var(--danger)',
-                    gap: '0.5rem',
-                    borderColor: 'rgba(239, 68, 68, 0.2)'
-                }}
-            >
-                <LogOut size={20} />
-                <span>Reset App & Data</span>
-            </button>
         </div>
     );
 };

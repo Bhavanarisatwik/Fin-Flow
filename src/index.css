@@ -1,67 +1,70 @@
 :root {
   /* ========================================
-     PREMIUM EMERALD + GOLD THEME
-     A sophisticated dark theme with emerald 
-     green and gold accents - conveying trust, 
-     wealth, and luxury banking aesthetics
+     PREMIUM FINTECH DARK THEME
+     Deep, professional dark with semantic 
+     colors for financial meaning
      ======================================== */
 
-  /* Core Backgrounds - Deep Dark */
-  --bg-primary: #050a08;
-  /* Near Black with slight green tint */
-  --bg-secondary: #0c1610;
-  /* Dark Forest */
-  --bg-tertiary: #152419;
-  /* Deep Green Tinted */
-  --bg-card: linear-gradient(145deg, #0f1a14 0%, #0a100d 100%);
+  /* Core Backgrounds - Premium Dark */
+  --bg-primary: #0C1117;
+  --bg-secondary: #131A22;
+  --bg-tertiary: #1C242E;
+  --bg-card: #131A22;
 
-  /* Text */
-  --text-primary: #f0f5f2;
-  --text-secondary: #a8c4b5;
-  --text-muted: #5c7a6b;
+  /* Text Hierarchy */
+  --text-primary: #F8FAFC;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
 
-  /* Primary Accent - Emerald */
-  --primary: #10b981;
-  /* Emerald Green */
-  --primary-hover: #059669;
-  /* Darker Emerald */
-  --primary-glow: rgba(16, 185, 129, 0.25);
-  --primary-soft: rgba(16, 185, 129, 0.1);
+  /* Primary Brand - Use Sparingly */
+  --primary: #2DD4A7;
+  --primary-hover: #26B896;
+  --primary-glow: rgba(45, 212, 167, 0.15);
+  --primary-soft: rgba(45, 212, 167, 0.1);
 
-  /* Secondary Accent - Gold */
-  --gold: #d4af37;
-  /* Rich Gold */
-  --gold-light: #f4d03f;
-  /* Light Gold */
-  --gold-glow: rgba(212, 175, 55, 0.25);
+  /* Semantic Financial Colors */
+  --income: #4ADE80;
+  --expense: #FB7185;
+  --investment: #C084FC;
+  --loan: #F59E0B;
 
   /* Status Colors */
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --info: #06b6d4;
+  --success: #4ADE80;
+  --danger: #FB7185;
+  --warning: #F59E0B;
+  --info: #38BDF8;
 
-  /* Chart Palette - Jewel Tones */
-  --chart-1: #10b981;
-  /* Emerald */
-  --chart-2: #d4af37;
-  /* Gold */
-  --chart-3: #06b6d4;
-  /* Cyan */
-  --chart-4: #8b5cf6;
-  /* Purple */
-  --chart-5: #ec4899;
-  /* Pink */
+  /* Chart Palette */
+  --chart-1: #2DD4A7;
+  --chart-2: #C084FC;
+  --chart-3: #FB7185;
+  --chart-4: #F59E0B;
+  --chart-5: #38BDF8;
+
+  /* Borders & Shadows - Subtle */
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-medium: rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.3);
 
   /* Structural */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.875rem;
-  --radius-lg: 1.25rem;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   --radius-full: 9999px;
 
   --header-height: 3.5rem;
   --bottom-nav-height: 4.5rem;
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Spacing */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
 }
 
 * {
@@ -104,6 +107,30 @@ button {
   font-family: inherit;
   color: inherit;
   touch-action: manipulation;
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+/* Pressable Cards & Items */
+.pressable {
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pressable:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pressable:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 input,
@@ -121,54 +148,56 @@ textarea {
   max-width: 480px;
   width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: var(--space-md);
   min-height: 100vh;
 }
 
 .card {
-  background: var(--bg-card);
-  background-color: var(--bg-secondary);
-  /* Fallback */
+  background: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  padding: var(--space-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .card-glass {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(10px);
   border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: var(--space-lg);
+  border: 1px solid var(--border-subtle);
 }
 
 /* ========================================
    TYPOGRAPHY
    ======================================== */
 .heading-xl {
-  font-size: 2.25rem;
+  font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.2;
+  color: var(--text-primary);
 }
 
 .heading-lg {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.3;
+  color: var(--text-primary);
 }
 
 .heading-md {
-  font-size: 1.375rem;
+  font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.02em;
+  color: var(--text-secondary);
 }
 
 .heading-sm {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .text-sm {
@@ -208,22 +237,38 @@ textarea {
 }
 
 .gap-sm {
-  gap: 0.5rem;
+  gap: var(--space-sm);
 }
 
 .gap-md {
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
 .gap-lg {
-  gap: 1.5rem;
+  gap: var(--space-lg);
 }
 
 /* ========================================
-   COLORS
+   SEMANTIC COLORS
    ======================================== */
 .text-primary-color {
   color: var(--primary);
+}
+
+.text-income {
+  color: var(--income);
+}
+
+.text-expense {
+  color: var(--expense);
+}
+
+.text-investment {
+  color: var(--investment);
+}
+
+.text-loan {
+  color: var(--loan);
 }
 
 .text-success {
@@ -254,44 +299,54 @@ textarea {
   background: var(--primary-soft);
 }
 
-.bg-success-soft {
-  background: rgba(34, 197, 94, 0.1);
+.bg-income-soft {
+  background: rgba(74, 222, 128, 0.1);
 }
 
-.bg-danger-soft {
-  background: rgba(239, 68, 68, 0.1);
+.bg-expense-soft {
+  background: rgba(251, 113, 133, 0.1);
 }
 
 /* ========================================
-   BUTTONS
+   BUTTONS - With Hierarchy
    ======================================== */
 .btn {
-  padding: 0.875rem 1.5rem;
+  padding: 14px 24px;
   border-radius: var(--radius-full);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-  color: white;
-  box-shadow: 0 4px 15px var(--primary-glow);
+  background: var(--primary);
+  color: #0C1117;
+  box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
+  background: var(--primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px var(--primary-glow);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.btn-outline:hover {
+  background: var(--primary-soft);
 }
 
 .btn-secondary {
   background: var(--bg-tertiary);
   color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-medium);
 }
 
 /* ========================================
@@ -299,9 +354,9 @@ textarea {
    ======================================== */
 .input {
   background: var(--bg-tertiary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-medium);
   border-radius: var(--radius-sm);
-  padding: 0.75rem 1rem;
+  padding: 12px 16px;
   color: var(--text-primary);
   font-size: 1rem;
   transition: border-color 0.2s;
@@ -313,20 +368,20 @@ textarea {
 }
 
 .input::placeholder {
-  color: var(--text-muted);
+  color: var(--text-dim);
 }
 
 /* ========================================
    ANIMATIONS
    ======================================== */
 .fade-in {
-  animation: fadeIn 0.35s ease-out;
+  animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
 
   to {
@@ -336,13 +391,13 @@ textarea {
 }
 
 .slide-up {
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.35s ease-out;
 }
 
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
 
   to {
@@ -355,7 +410,7 @@ textarea {
    PROGRESS / BARS
    ======================================== */
 .progress-bar {
-  height: 8px;
+  height: 6px;
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
   overflow: hidden;
@@ -376,13 +431,13 @@ textarea {
   left: 0;
   right: 0;
   height: var(--bottom-nav-height);
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 1) 100%);
+  background: rgba(12, 17, 23, 0.95);
   backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 0.5rem;
+  padding: 0 8px;
   z-index: 100;
 }
 
@@ -390,9 +445,9 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  color: var(--text-muted);
+  gap: 4px;
+  padding: 8px;
+  color: var(--text-dim);
   transition: color 0.2s;
   font-size: 0.7rem;
 }
@@ -404,13 +459,14 @@ textarea {
 .nav-item svg {
   width: 22px;
   height: 22px;
+  stroke-width: 1.5;
 }
 
 /* ========================================
    SCROLLBAR (Webkit)
    ======================================== */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -419,9 +475,36 @@ textarea {
 
 ::-webkit-scrollbar-thumb {
   background: var(--bg-tertiary);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  background: var(--text-dim);
+}
+
+/* ========================================
+   BADGES
+   ======================================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-primary {
+  background: var(--primary-glow);
+  color: var(--primary);
+}
+
+.badge-success {
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--income);
+}
+
+.badge-danger {
+  background: rgba(251, 113, 133, 0.15);
+  color: var(--expense);
 }

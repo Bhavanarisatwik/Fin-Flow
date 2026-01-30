@@ -151,3 +151,4 @@ export const AddGoalModal: React.FC<Props> = ({ isOpen, onClose }) => {
         </div>
     );
 };
+

@@ -19,3 +19,4 @@ export class FinFlowDatabase extends Dexie {
 }
 
 export const db = new FinFlowDatabase();
+

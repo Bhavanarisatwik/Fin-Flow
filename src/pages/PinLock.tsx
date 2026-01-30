@@ -96,7 +96,7 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'linear-gradient(180deg, #050a08 0%, #0a100d 50%, #0f1a14 100%)',
+            background: 'linear-gradient(180deg, #050a08 0%, #0a100d 50%, #161b22 100%)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -111,7 +111,7 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
                 width: 350,
                 height: 350,
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 60%)',
+                background: 'radial-gradient(circle, rgba(45,212,167,0.12) 0%, transparent 60%)',
                 top: '5%',
                 left: '50%',
                 transform: 'translateX(-50%)',
@@ -125,23 +125,23 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
                 height: 90,
                 borderRadius: 28,
                 background: success
-                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    ? 'linear-gradient(135deg, #2DD4A7 0%, #26B896 100%)'
                     : error
                         ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                        : 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(212,175,55,0.1) 100%)',
+                        : 'linear-gradient(135deg, rgba(45,212,167,0.2) 0%, rgba(212,175,55,0.1) 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: '1.5rem',
-                border: `2px solid ${success ? '#10b981' : error ? '#ef4444' : 'rgba(16,185,129,0.3)'}`,
+                border: `2px solid ${success ? '#2DD4A7' : error ? '#ef4444' : 'rgba(45,212,167,0.3)'}`,
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 animation: error ? 'shake 0.4s ease-in-out' : success ? 'success-pop 0.4s ease-out' : 'none',
-                boxShadow: success ? '0 0 40px rgba(16,185,129,0.5)' : error ? '0 0 40px rgba(239,68,68,0.3)' : '0 10px 30px rgba(0,0,0,0.3)'
+                boxShadow: success ? '0 0 40px rgba(45,212,167,0.5)' : error ? '0 0 40px rgba(239,68,68,0.3)' : '0 10px 30px rgba(0,0,0,0.3)'
             }}>
                 {success ? (
                     <Check size={44} color="white" style={{ animation: 'check-draw 0.3s ease-out' }} />
                 ) : (
-                    <Lock size={40} color={error ? '#fff' : '#10b981'} />
+                    <Lock size={40} color={error ? '#fff' : '#2DD4A7'} />
                 )}
             </div>
 
@@ -185,12 +185,12 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
                             height: 22,
                             borderRadius: '50%',
                             background: currentPin.length > i
-                                ? (error ? '#ef4444' : 'linear-gradient(135deg, #10b981 0%, #d4af37 100%)')
+                                ? (error ? '#ef4444' : 'linear-gradient(135deg, #2DD4A7 0%, #F59E0B 100%)')
                                 : 'rgba(255,255,255,0.08)',
-                            border: `2px solid ${error ? '#ef4444' : currentPin.length > i ? '#10b981' : 'rgba(255,255,255,0.15)'}`,
+                            border: `2px solid ${error ? '#ef4444' : currentPin.length > i ? '#2DD4A7' : 'rgba(255,255,255,0.15)'}`,
                             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                             transform: currentPin.length === i + 1 ? 'scale(1.2)' : currentPin.length > i ? 'scale(1.05)' : 'scale(1)',
-                            boxShadow: currentPin.length > i ? '0 0 20px rgba(16,185,129,0.5)' : 'none',
+                            boxShadow: currentPin.length > i ? '0 0 20px rgba(45,212,167,0.5)' : 'none',
                             animation: currentPin.length === i + 1 ? 'dot-pop 0.2s ease-out' : 'none'
                         }}
                     />
@@ -232,7 +232,7 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
                             borderRadius: 24,
                             background: key
                                 ? pressedKey === key
-                                    ? 'linear-gradient(145deg, rgba(16,185,129,0.3) 0%, rgba(16,185,129,0.1) 100%)'
+                                    ? 'linear-gradient(145deg, rgba(45,212,167,0.3) 0%, rgba(45,212,167,0.1) 100%)'
                                     : 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)'
                                 : 'transparent',
                             border: key ? '1px solid rgba(255,255,255,0.1)' : 'none',
@@ -319,3 +319,5 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
 };
 
 export default PinLock;
+
+

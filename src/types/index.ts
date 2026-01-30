@@ -1,5 +1,12 @@
 export type IncomeBracket = 'Bracket 1' | 'Bracket 2' | 'Bracket 3';
 
+export interface FinancialSettings {
+    savingsTarget?: number;
+    investmentTarget?: number;
+    expenseLimit?: number;
+    emergencyFundMonths?: number;
+}
+
 export interface UserProfile {
     id: string; // UUID
     name: string;
@@ -10,6 +17,8 @@ export interface UserProfile {
     bracket: IncomeBracket;
     riskProfile: 'Conservative' | 'Balanced' | 'Aggressive';
     createdAt: string;
+    categoryBudgets?: { category: string; budget: number }[];
+    financialSettings?: FinancialSettings;
 }
 
 export interface FinancialGoal {
@@ -73,3 +82,4 @@ export interface AssetAllocation {
     fd: number;
     gold: number;
 }
+

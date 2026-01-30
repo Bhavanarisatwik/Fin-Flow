@@ -99,6 +99,13 @@ export const LoanDetails: React.FC = () => {
         setTranches([{ amount: '230000', date: '' }]);
     };
 
+    // Delete Loan
+    const deleteLoan = async (loanId: string) => {
+        if (confirm('Delete this loan? This cannot be undone.')) {
+            await db.loans.delete(loanId);
+        }
+    };
+
     // Calculate moratorium interest for education loans
     const calculateMoratoriumInterest = (loan: typeof selectedLoan) => {
         if (!loan) return 0;
@@ -178,7 +185,7 @@ export const LoanDetails: React.FC = () => {
 
     // ECharts options - Emerald theme
     const pieOption = loanAnalysis ? {
-        tooltip: { trigger: 'item', backgroundColor: '#0f1a14', borderColor: 'rgba(16,185,129,0.2)', textStyle: { color: '#f0f5f2', fontSize: 12 } },
+        tooltip: { trigger: 'item', backgroundColor: 'var(--bg-secondary)', borderColor: 'rgba(45,212,167,0.2)', textStyle: { color: 'var(--text-primary)', fontSize: 12 } },
         series: [{
             type: 'pie',
             radius: ['45%', '70%'],
@@ -186,9 +193,9 @@ export const LoanDetails: React.FC = () => {
             itemStyle: { borderRadius: 6, borderColor: '#050a08', borderWidth: 2 },
             label: { show: false },
             data: [
-                { value: loanAnalysis.originalPrincipal, name: 'Principal', itemStyle: { color: '#10b981' } },
-                { value: loanAnalysis.moratoriumInterest, name: 'Moratorium Interest', itemStyle: { color: '#d4af37' } },
-                { value: loanAnalysis.totalInterest, name: 'Future Interest', itemStyle: { color: '#ef4444' } },
+                { value: loanAnalysis.originalPrincipal, name: 'Principal', itemStyle: { color: 'var(--primary)' } },
+                { value: loanAnalysis.moratoriumInterest, name: 'Moratorium Interest', itemStyle: { color: 'var(--loan)' } },
+                { value: loanAnalysis.totalInterest, name: 'Future Interest', itemStyle: { color: 'var(--expense)' } },
             ]
         }]
     } : {};
@@ -196,15 +203,15 @@ export const LoanDetails: React.FC = () => {
     // ECharts for payoff projection
     const lineOption = loanAnalysis ? {
         grid: { left: 40, right: 10, top: 10, bottom: 30 },
-        tooltip: { trigger: 'axis', backgroundColor: '#0f1a14', borderColor: 'rgba(16,185,129,0.2)', textStyle: { color: '#f0f5f2', fontSize: 11 } },
-        xAxis: { type: 'category', data: loanAnalysis.schedule.filter((_, i) => i % 6 === 0).map(s => s.month), axisLine: { lineStyle: { color: '#152419' } }, axisLabel: { color: '#5c7a6b', fontSize: 10 } },
+        tooltip: { trigger: 'axis', backgroundColor: 'var(--bg-secondary)', borderColor: 'rgba(45,212,167,0.2)', textStyle: { color: 'var(--text-primary)', fontSize: 11 } },
+        xAxis: { type: 'category', data: loanAnalysis.schedule.filter((_, i) => i % 6 === 0).map(s => s.month), axisLine: { lineStyle: { color: 'var(--bg-tertiary)' } }, axisLabel: { color: '#6e7681', fontSize: 10 } },
         yAxis: { type: 'value', show: false },
         series: [{
             data: loanAnalysis.schedule.filter((_, i) => i % 6 === 0).map(s => s.balance),
             type: 'line',
             smooth: true,
-            lineStyle: { color: '#10b981', width: 2 },
-            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(16,185,129,0.3)' }, { offset: 1, color: 'transparent' }] } },
+            lineStyle: { color: 'var(--primary)', width: 2 },
+            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(45,212,167,0.3)' }, { offset: 1, color: 'transparent' }] } },
             symbol: 'none'
         }]
     } : {};
@@ -224,15 +231,15 @@ export const LoanDetails: React.FC = () => {
                 <>
                     {/* Outstanding Total */}
                     <div style={{
-                        background: 'linear-gradient(145deg, rgba(15,26,20,0.9) 0%, rgba(10,16,13,0.95) 100%)',
+                        background: 'linear-gradient(145deg, rgba(28,33,40,0.9) 0%, rgba(22,27,34,0.95) 100%)',
                         borderRadius: 'var(--radius-lg)',
                         padding: '1.5rem',
                         marginBottom: '1rem',
-                        border: '1px solid rgba(16,185,129,0.1)'
+                        border: '1px solid rgba(45,212,167,0.1)'
                     }}>
                         <div className="flex-between">
                             <span className="font-medium text-muted">Outstanding Loans:</span>
-                            <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ef4444' }}>₹ {totalOutstanding.toLocaleString()}</span>
+                            <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--expense)' }}>₹ {totalOutstanding.toLocaleString()}</span>
                         </div>
                     </div>
 
@@ -247,13 +254,13 @@ export const LoanDetails: React.FC = () => {
                                     marginTop: '0.5rem',
                                     padding: '0.75rem 1.5rem',
                                     borderRadius: 'var(--radius-full)',
-                                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)',
                                     color: 'white',
                                     fontWeight: 600,
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '0.5rem',
-                                    boxShadow: '0 4px 15px rgba(16,185,129,0.3)'
+                                    boxShadow: '0 4px 15px rgba(45,212,167,0.3)'
                                 }}
                             >
                                 <Plus size={18} /> Add Education Loan
@@ -266,24 +273,38 @@ export const LoanDetails: React.FC = () => {
                                 const totalBal = loan.remainingPrincipal + moratoriumInt;
 
                                 return (
-                                    <button
-                                        key={loan.id}
-                                        className="card"
-                                        onClick={() => { setSelectedLoanId(loan.id); setSimulatedEmi(null); }}
-                                        style={{ textAlign: 'left', padding: '1.25rem' }}
-                                    >
-                                        <div className="flex-between" style={{ marginBottom: '0.75rem' }}>
-                                            <div className="flex-center" style={{ gap: '0.5rem' }}>
-                                                <GraduationCap size={18} style={{ color: '#d4af37' }} />
-                                                <span className="font-bold">{loan.name}</span>
+                                    <div key={loan.id} className="card" style={{ padding: '1.25rem', position: 'relative' }}>
+                                        <button
+                                            onClick={() => { setSelectedLoanId(loan.id); setSimulatedEmi(null); }}
+                                            style={{ textAlign: 'left', width: '100%', paddingRight: '2.5rem' }}
+                                        >
+                                            <div className="flex-between" style={{ marginBottom: '0.75rem' }}>
+                                                <div className="flex-center" style={{ gap: '0.5rem' }}>
+                                                    <GraduationCap size={18} style={{ color: 'var(--loan)' }} />
+                                                    <span className="font-bold">{loan.name}</span>
+                                                </div>
+                                                <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--expense)' }}>₹ {totalBal.toLocaleString()}</span>
                                             </div>
-                                            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ef4444' }}>₹ {totalBal.toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex-between text-sm text-muted">
-                                            <span>EMI: ₹{loan.emi.toLocaleString()}</span>
-                                            <span>{loan.interestRate}% p.a.</span>
-                                        </div>
-                                    </button>
+                                            <div className="flex-between text-sm text-muted">
+                                                <span>EMI: ₹{loan.emi.toLocaleString()}</span>
+                                                <span>{loan.interestRate}% p.a.</span>
+                                            </div>
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); deleteLoan(loan.id); }}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '1rem',
+                                                right: '1rem',
+                                                padding: '0.5rem',
+                                                borderRadius: '8px',
+                                                background: 'rgba(239,68,68,0.1)',
+                                                color: 'var(--expense)'
+                                            }}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 );
                             })}
 
@@ -294,8 +315,8 @@ export const LoanDetails: React.FC = () => {
                                     marginTop: '0.5rem',
                                     padding: '0.875rem',
                                     borderRadius: 'var(--radius-md)',
-                                    background: 'linear-gradient(145deg, rgba(15,26,20,0.9), rgba(10,16,13,0.95))',
-                                    border: '1px solid rgba(16,185,129,0.1)',
+                                    background: 'linear-gradient(145deg, rgba(28,33,40,0.9), rgba(22,27,34,0.95))',
+                                    border: '1px solid rgba(45,212,167,0.1)',
                                     color: 'var(--text-primary)',
                                     fontWeight: 500,
                                     display: 'flex',
@@ -315,10 +336,10 @@ export const LoanDetails: React.FC = () => {
                     <div className="flex-col" style={{ gap: '1rem' }}>
                         {/* Summary */}
                         <div style={{
-                            background: 'linear-gradient(145deg, rgba(15,26,20,0.9) 0%, rgba(10,16,13,0.95) 100%)',
+                            background: 'linear-gradient(145deg, rgba(28,33,40,0.9) 0%, rgba(22,27,34,0.95) 100%)',
                             borderRadius: 'var(--radius-lg)',
                             padding: '1.25rem',
-                            border: '1px solid rgba(16,185,129,0.1)'
+                            border: '1px solid rgba(45,212,167,0.1)'
                         }}>
                             <div className="flex-between">
                                 <span className="heading-sm">{selectedLoan.name}</span>
@@ -326,7 +347,7 @@ export const LoanDetails: React.FC = () => {
                                     {selectedLoan.status}
                                 </span>
                             </div>
-                            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#ef4444', marginTop: '0.5rem' }}>
+                            <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--expense)', marginTop: '0.5rem' }}>
                                 ₹ {loanAnalysis.currentBalance.toLocaleString()}
                             </div>
                             <p className="text-xs text-muted">Total Outstanding (Principal + Accrued Interest)</p>
@@ -341,20 +362,20 @@ export const LoanDetails: React.FC = () => {
                                 </div>
                                 <div className="flex-col" style={{ gap: '0.5rem', flex: 1, marginLeft: '1rem' }}>
                                     <div className="flex-between text-sm">
-                                        <span className="flex-center" style={{ gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: '#10b981' }}></span> Principal</span>
+                                        <span className="flex-center" style={{ gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--primary)' }}></span> Principal</span>
                                         <span className="font-bold">₹ {loanAnalysis.originalPrincipal.toLocaleString()}</span>
                                     </div>
                                     <div className="flex-between text-sm">
-                                        <span className="flex-center" style={{ gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: '#d4af37' }}></span> Moratorium Int.</span>
+                                        <span className="flex-center" style={{ gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--loan)' }}></span> Moratorium Int.</span>
                                         <span className="font-bold">₹ {loanAnalysis.moratoriumInterest.toLocaleString()}</span>
                                     </div>
                                     <div className="flex-between text-sm">
-                                        <span className="flex-center" style={{ gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: '#ef4444' }}></span> Future Interest</span>
+                                        <span className="flex-center" style={{ gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--expense)' }}></span> Future Interest</span>
                                         <span className="font-bold">₹ {loanAnalysis.totalInterest.toLocaleString()}</span>
                                     </div>
                                     <div className="flex-between text-sm" style={{ paddingTop: '0.5rem', borderTop: '1px dashed var(--bg-tertiary)' }}>
                                         <span className="text-muted">Total Outflow</span>
-                                        <span className="font-bold" style={{ color: '#ef4444' }}>
+                                        <span className="font-bold" style={{ color: 'var(--expense)' }}>
                                             ₹ {(loanAnalysis.originalPrincipal + loanAnalysis.moratoriumInterest + loanAnalysis.totalInterest).toLocaleString()}
                                         </span>
                                     </div>
@@ -377,9 +398,9 @@ export const LoanDetails: React.FC = () => {
                                     step={1000}
                                     value={simulatedEmi || selectedLoan.emi}
                                     onChange={e => setSimulatedEmi(Number(e.target.value))}
-                                    style={{ flex: 1, accentColor: '#10b981' }}
+                                    style={{ flex: 1, accentColor: 'var(--primary)' }}
                                 />
-                                <span className="font-bold" style={{ minWidth: 90, textAlign: 'right', color: '#10b981' }}>
+                                <span className="font-bold" style={{ minWidth: 90, textAlign: 'right', color: 'var(--primary)' }}>
                                     ₹ {(simulatedEmi || selectedLoan.emi).toLocaleString()}
                                 </span>
                             </div>
@@ -411,7 +432,7 @@ export const LoanDetails: React.FC = () => {
                                     {selectedLoan.paymentHistory.slice(-5).map((p, i) => (
                                         <div key={i} className="flex-between text-sm" style={{ padding: '0.5rem', background: 'var(--bg-tertiary)', borderRadius: 4 }}>
                                             <span className="text-muted">{new Date(p.date).toLocaleDateString()}</span>
-                                            <span className="font-bold" style={{ color: '#10b981' }}>₹ {p.amount.toLocaleString()}</span>
+                                            <span className="font-bold" style={{ color: 'var(--primary)' }}>₹ {p.amount.toLocaleString()}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -427,7 +448,7 @@ export const LoanDetails: React.FC = () => {
                                 padding: '0.875rem',
                                 borderRadius: 'var(--radius-md)',
                                 background: 'var(--bg-tertiary)',
-                                border: '1px solid rgba(16,185,129,0.1)',
+                                border: '1px solid rgba(45,212,167,0.1)',
                                 color: 'var(--text-primary)',
                                 fontWeight: 500
                             }}
@@ -529,7 +550,7 @@ export const LoanDetails: React.FC = () => {
                                                 style={{ padding: '0.5rem', borderRadius: 4, background: 'var(--bg-secondary)', border: '1px solid var(--bg-tertiary)', color: 'var(--text-primary)' }}
                                             />
                                             {tranches.length > 1 && (
-                                                <button onClick={() => removeTranche(idx)} style={{ color: '#ef4444' }}>
+                                                <button onClick={() => removeTranche(idx)} style={{ color: 'var(--expense)' }}>
                                                     <Trash2 size={16} />
                                                 </button>
                                             )}
@@ -539,7 +560,7 @@ export const LoanDetails: React.FC = () => {
                                 <button
                                     onClick={addTranche}
                                     className="text-sm"
-                                    style={{ marginTop: '0.5rem', color: '#10b981' }}
+                                    style={{ marginTop: '0.5rem', color: 'var(--primary)' }}
                                 >
                                     + Add Tranche
                                 </button>
@@ -549,7 +570,7 @@ export const LoanDetails: React.FC = () => {
                             <div style={{ padding: '0.75rem', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
                                 <div className="flex-between text-sm">
                                     <span className="text-muted">Total Principal:</span>
-                                    <span className="font-bold" style={{ color: '#10b981' }}>₹ {tranches.reduce((s, t) => s + Number(t.amount || 0), 0).toLocaleString()}</span>
+                                    <span className="font-bold" style={{ color: 'var(--primary)' }}>₹ {tranches.reduce((s, t) => s + Number(t.amount || 0), 0).toLocaleString()}</span>
                                 </div>
                             </div>
 
@@ -559,10 +580,10 @@ export const LoanDetails: React.FC = () => {
                                     width: '100%',
                                     padding: '1rem',
                                     borderRadius: 'var(--radius-full)',
-                                    background: moratoriumEndDate && tranches[0].amount ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'var(--bg-tertiary)',
+                                    background: moratoriumEndDate && tranches[0].amount ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)' : 'var(--bg-tertiary)',
                                     color: moratoriumEndDate && tranches[0].amount ? 'white' : 'var(--text-muted)',
                                     fontWeight: 600,
-                                    boxShadow: moratoriumEndDate && tranches[0].amount ? '0 4px 15px rgba(16,185,129,0.3)' : 'none'
+                                    boxShadow: moratoriumEndDate && tranches[0].amount ? '0 4px 15px rgba(45,212,167,0.3)' : 'none'
                                 }}
                                 disabled={!moratoriumEndDate || !tranches[0].amount}
                             >
@@ -577,3 +598,5 @@ export const LoanDetails: React.FC = () => {
 };
 
 export default LoanDetails;
+
+

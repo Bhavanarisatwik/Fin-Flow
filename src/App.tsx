@@ -15,6 +15,8 @@ import Goals from './pages/Goals';
 import Advisor from './pages/Advisor';
 import Profile from './pages/Profile';
 import LoanDetails from './pages/LoanDetails';
+import Categories from './pages/Categories';
+import Settings from './pages/Settings';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useUser();
@@ -95,11 +97,32 @@ function AppRoutes() {
       <Route path="/advisor" element={<ProtectedRoute><Advisor /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/loans" element={<ProtectedRoute><LoanDetails /></ProtectedRoute>} />
+      <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
     </Routes>
   );
 }
 
 function App() {
+  // Handle back button to prevent app from closing
+  useEffect(() => {
+    // Push initial state
+    window.history.pushState({ page: 'app' }, '', window.location.href);
+
+    const handlePopState = (event: PopStateEvent) => {
+      // Push state back to prevent closing
+      if (!event.state || event.state.page !== 'leaving') {
+        window.history.pushState({ page: 'app' }, '', window.location.href);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
   return (
     <UserProvider>
       <AppRoutes />
@@ -108,3 +131,4 @@ function App() {
 }
 
 export default App;
+

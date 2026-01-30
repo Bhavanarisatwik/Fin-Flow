@@ -1,27 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../services/storage';
+import { FinancialEngine } from '../services/finance';
 import { AddTransactionModal } from '../components/modals/AddTransactionModal';
-import { Briefcase, Gift, TrendingUp, Plus, Trash2, Edit3, Check, X } from 'lucide-react';
+import { Briefcase, Gift, TrendingUp, Plus, Trash2, Edit3, Check, X, Sparkles } from 'lucide-react';
 
 export const Income: React.FC = () => {
     const { user, updateUser } = useUser();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditingSalary, setIsEditingSalary] = useState(false);
     const [newSalary, setNewSalary] = useState('');
+    const [showSuggestion, setShowSuggestion] = useState(false);
+    const [lastAddedAmount, setLastAddedAmount] = useState(0);
 
     const transactions = useLiveQuery(() =>
         user ? db.transactions.where({ userId: user.id }).toArray() : []
         , [user]);
 
-    if (!user) return null;
-
-    // Filter only income transactions
+    // Watch for new income transactions
     const incomeTransactions = transactions?.filter(t => t.type === 'Income')
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) || [];
 
-    // Current month income
+    // Show suggestion when modal closes after adding income
+    useEffect(() => {
+        if (!isModalOpen && lastAddedAmount > 0) {
+            setShowSuggestion(true);
+        }
+    }, [isModalOpen, lastAddedAmount]);
+
+    if (!user) return null;
+
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -33,6 +42,11 @@ export const Income: React.FC = () => {
 
     const totalBaseIncome = user.monthlyIncome;
     const totalThisMonth = totalBaseIncome + monthlyIncome;
+
+    // Get allocation for investment suggestions
+    const allocation = FinancialEngine.getAssetAllocation(user.bracket);
+    const savingsTarget = user.financialSettings?.savingsTarget || 30;
+    const investmentTarget = user.financialSettings?.investmentTarget || 20;
 
     const deleteIncome = async (id: string) => {
         if (confirm('Delete this income entry?')) {
@@ -54,33 +68,54 @@ export const Income: React.FC = () => {
         }
     };
 
+    const handleModalClose = () => {
+        // Check if a new income was added
+        const newTotal = incomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+        if (newTotal > monthlyIncome) {
+            setLastAddedAmount(newTotal - monthlyIncome);
+        }
+        setIsModalOpen(false);
+    };
+
+    // Calculate investment breakdown for suggestion
+    const suggestedInvestment = Math.round(lastAddedAmount * (investmentTarget / 100));
+    const investmentBreakdown = [
+        { name: 'Mutual Funds', amount: Math.round(suggestedInvestment * allocation.mutualFunds), color: '#C084FC' },
+        { name: 'Stocks', amount: Math.round(suggestedInvestment * allocation.stocks), color: '#F59E0B' },
+        { name: 'Debt Funds', amount: Math.round(suggestedInvestment * allocation.debtFunds), color: '#38BDF8' },
+        { name: 'FD', amount: Math.round(suggestedInvestment * allocation.fd), color: '#FB7185' },
+        { name: 'Gold', amount: Math.round(suggestedInvestment * allocation.gold), color: '#FBBF24' },
+    ].filter(item => item.amount > 0);
+
     return (
-        <div style={{ padding: '0 1rem', paddingBottom: '2rem' }} className="fade-in">
+        <div style={{ padding: '0 16px', paddingBottom: '32px' }} className="fade-in">
             {/* Header */}
-            <h2 className="heading-md" style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Income</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '24px', textAlign: 'center' }}>
+                Income
+            </h2>
 
             {/* Base Salary Card */}
             <div style={{
-                background: 'linear-gradient(145deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.05) 100%)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '1.25rem',
-                marginBottom: '1rem',
-                border: '1px solid rgba(16,185,129,0.2)'
+                background: 'var(--bg-secondary)',
+                borderRadius: '16px',
+                padding: '20px',
+                marginBottom: '16px',
+                border: '1px solid var(--border-subtle)'
             }}>
-                <div className="flex-between" style={{ marginBottom: '0.5rem' }}>
-                    <div className="flex-center" style={{ gap: '0.75rem' }}>
+                <div className="flex-between" style={{ marginBottom: '8px' }}>
+                    <div className="flex-center" style={{ gap: '12px' }}>
                         <div style={{
-                            width: 40, height: 40, borderRadius: 12,
-                            background: 'rgba(16,185,129,0.2)',
+                            width: 44, height: 44, borderRadius: 12,
+                            background: 'rgba(74,222,128,0.1)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: '#10b981'
+                            color: '#4ADE80'
                         }}>
-                            <Briefcase size={20} />
+                            <Briefcase size={20} strokeWidth={1.5} />
                         </div>
                         <div>
-                            <p className="text-sm text-muted">Monthly Salary</p>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Monthly Salary</p>
                             {isEditingSalary ? (
-                                <div className="flex-center" style={{ gap: '0.5rem', marginTop: '0.25rem' }}>
+                                <div className="flex-center" style={{ gap: '8px', marginTop: '4px' }}>
                                     <input
                                         type="number"
                                         value={newSalary}
@@ -88,29 +123,29 @@ export const Income: React.FC = () => {
                                         placeholder={user.monthlyIncome.toString()}
                                         style={{
                                             width: 120,
-                                            padding: '0.5rem',
+                                            padding: '8px',
                                             borderRadius: 8,
-                                            background: 'rgba(0,0,0,0.3)',
-                                            border: '1px solid rgba(16,185,129,0.3)',
-                                            color: '#f0f5f2',
+                                            background: 'var(--bg-tertiary)',
+                                            border: '1px solid var(--border-medium)',
+                                            color: 'var(--text-primary)',
                                             fontSize: '1rem'
                                         }}
                                     />
                                     <button
                                         onClick={handleSalaryUpdate}
-                                        style={{ padding: '0.5rem', borderRadius: 8, background: 'rgba(16,185,129,0.2)', color: '#10b981' }}
+                                        style={{ padding: '8px', borderRadius: 8, background: 'rgba(74,222,128,0.1)', color: '#4ADE80' }}
                                     >
-                                        <Check size={16} />
+                                        <Check size={16} strokeWidth={1.5} />
                                     </button>
                                     <button
                                         onClick={() => setIsEditingSalary(false)}
-                                        style={{ padding: '0.5rem', borderRadius: 8, background: 'rgba(239,68,68,0.2)', color: '#ef4444' }}
+                                        style={{ padding: '8px', borderRadius: 8, background: 'rgba(251,113,133,0.1)', color: '#FB7185' }}
                                     >
-                                        <X size={16} />
+                                        <X size={16} strokeWidth={1.5} />
                                     </button>
                                 </div>
                             ) : (
-                                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
+                                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4ADE80' }}>
                                     ₹ {user.monthlyIncome.toLocaleString()}
                                 </p>
                             )}
@@ -123,93 +158,156 @@ export const Income: React.FC = () => {
                                 setIsEditingSalary(true);
                             }}
                             style={{
-                                padding: '0.5rem 0.75rem',
+                                padding: '8px 12px',
                                 borderRadius: 8,
-                                background: 'rgba(16,185,129,0.15)',
-                                color: '#10b981',
+                                background: 'rgba(74,222,128,0.1)',
+                                color: '#4ADE80',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.375rem',
-                                fontSize: '0.8rem'
+                                gap: '6px',
+                                fontSize: '0.8rem',
+                                fontWeight: 500
                             }}
                         >
-                            <Edit3 size={14} /> Edit
+                            <Edit3 size={14} strokeWidth={1.5} /> Edit
                         </button>
                     )}
                 </div>
             </div>
 
             {/* This Month Total */}
-            <div className="card" style={{ padding: '1.25rem', marginBottom: '1rem' }}>
+            <div style={{
+                background: 'var(--bg-secondary)',
+                borderRadius: '16px',
+                padding: '20px',
+                marginBottom: '16px',
+                border: '1px solid var(--border-subtle)'
+            }}>
                 <div className="flex-between">
-                    <span className="font-bold">Total This Month</span>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Total This Month</span>
+                    <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#4ADE80' }}>
                         ₹ {totalThisMonth.toLocaleString()}
                     </span>
                 </div>
                 {monthlyIncome > 0 && (
-                    <p className="text-xs text-muted" style={{ marginTop: '0.5rem' }}>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '8px' }}>
                         + ₹{monthlyIncome.toLocaleString()} additional income
                     </p>
                 )}
             </div>
 
-            {/* Income History */}
-            <div className="card" style={{ padding: '1.25rem' }}>
-                <div className="flex-between" style={{ marginBottom: '1rem' }}>
-                    <div className="flex-center" style={{ gap: '0.5rem' }}>
-                        <TrendingUp size={18} style={{ color: '#d4af37' }} />
-                        <h3 className="font-bold">Income History</h3>
+            {/* Investment Suggestion Card */}
+            {showSuggestion && lastAddedAmount > 0 && (
+                <div style={{
+                    background: 'linear-gradient(135deg, rgba(45,212,167,0.1) 0%, rgba(192,132,252,0.1) 100%)',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    marginBottom: '16px',
+                    border: '1px solid rgba(45,212,167,0.2)'
+                }}>
+                    <div className="flex-between" style={{ marginBottom: '16px' }}>
+                        <div className="flex-center" style={{ gap: '8px' }}>
+                            <Sparkles size={18} strokeWidth={1.5} style={{ color: '#2DD4A7' }} />
+                            <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Investment Suggestion</span>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setShowSuggestion(false);
+                                setLastAddedAmount(0);
+                            }}
+                            style={{ padding: '4px', color: 'var(--text-muted)' }}
+                        >
+                            <X size={16} strokeWidth={1.5} />
+                        </button>
                     </div>
-                    <span className="text-xs text-muted">{incomeTransactions.length} entries</span>
+
+                    <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                        Based on your ₹{lastAddedAmount.toLocaleString()} income, invest <span style={{ color: '#2DD4A7', fontWeight: 600 }}>₹{suggestedInvestment.toLocaleString()}</span> ({investmentTarget}%):
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {investmentBreakdown.map((item, idx) => (
+                            <div key={idx} className="flex-between" style={{
+                                padding: '10px 12px',
+                                background: 'var(--bg-tertiary)',
+                                borderRadius: '10px'
+                            }}>
+                                <div className="flex-center" style={{ gap: '8px' }}>
+                                    <div style={{
+                                        width: 8, height: 8, borderRadius: '50%',
+                                        background: item.color
+                                    }} />
+                                    <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{item.name}</span>
+                                </div>
+                                <span style={{ fontWeight: 600, color: item.color }}>₹{item.amount.toLocaleString()}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '12px', textAlign: 'center' }}>
+                        Save {savingsTarget}% = ₹{Math.round(lastAddedAmount * (savingsTarget / 100)).toLocaleString()} for emergencies
+                    </p>
+                </div>
+            )}
+
+            {/* Income History */}
+            <div style={{
+                background: 'var(--bg-secondary)',
+                borderRadius: '16px',
+                padding: '20px',
+                border: '1px solid var(--border-subtle)'
+            }}>
+                <div className="flex-between" style={{ marginBottom: '16px' }}>
+                    <div className="flex-center" style={{ gap: '8px' }}>
+                        <TrendingUp size={18} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} />
+                        <h3 style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Income History</h3>
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{incomeTransactions.length} entries</span>
                 </div>
 
-                <div className="flex-col" style={{ gap: '0.75rem', maxHeight: 350, overflowY: 'auto' }}>
-                    {incomeTransactions.length > 0 ? incomeTransactions.slice(0, 30).map(income => (
+                <div className="flex-col" style={{ gap: '12px', maxHeight: 300, overflowY: 'auto' }}>
+                    {incomeTransactions.length > 0 ? incomeTransactions.slice(0, 20).map(income => (
                         <div
                             key={income.id}
-                            className="flex-between"
+                            className="flex-between pressable"
                             style={{
-                                padding: '0.875rem',
-                                background: 'rgba(0,0,0,0.2)',
+                                padding: '14px',
+                                background: 'var(--bg-tertiary)',
                                 borderRadius: 12,
-                                border: '1px solid rgba(16,185,129,0.1)'
+                                border: '1px solid var(--border-subtle)'
                             }}
                         >
-                            <div className="flex-center" style={{ gap: '0.75rem' }}>
+                            <div className="flex-center" style={{ gap: '12px' }}>
                                 <div style={{
                                     width: 40, height: 40, borderRadius: 10,
-                                    background: 'rgba(16,185,129,0.15)',
+                                    background: 'rgba(74,222,128,0.1)',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    color: '#10b981'
+                                    color: '#4ADE80'
                                 }}>
-                                    <Gift size={18} />
+                                    <Gift size={18} strokeWidth={1.5} />
                                 </div>
                                 <div>
-                                    <p className="font-medium">{income.category || 'Income'}</p>
-                                    <p className="text-xs text-muted">{formatDate(income.date)}</p>
-                                    {income.description && (
-                                        <p className="text-xs text-muted" style={{ marginTop: '0.125rem' }}>{income.description}</p>
-                                    )}
+                                    <p style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>{income.category || 'Income'}</p>
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{formatDate(income.date)}</p>
                                 </div>
                             </div>
-                            <div className="flex-center" style={{ gap: '0.75rem' }}>
-                                <span style={{ fontWeight: 600, color: '#10b981' }}>+₹{income.amount.toLocaleString()}</span>
+                            <div className="flex-center" style={{ gap: '12px' }}>
+                                <span style={{ fontWeight: 600, color: '#4ADE80' }}>+₹{income.amount.toLocaleString()}</span>
                                 <button
                                     onClick={() => deleteIncome(income.id)}
                                     style={{
-                                        padding: '0.375rem',
+                                        padding: '6px',
                                         borderRadius: 8,
-                                        background: 'rgba(239,68,68,0.1)',
-                                        color: '#ef4444'
+                                        background: 'rgba(251,113,133,0.1)',
+                                        color: '#FB7185'
                                     }}
                                 >
-                                    <Trash2 size={14} />
+                                    <Trash2 size={14} strokeWidth={1.5} />
                                 </button>
                             </div>
                         </div>
                     )) : (
-                        <p className="text-muted text-sm text-center" style={{ padding: '2rem 0' }}>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', textAlign: 'center', padding: '32px 0' }}>
                             No additional income logged yet
                         </p>
                     )}
@@ -221,25 +319,25 @@ export const Income: React.FC = () => {
                 onClick={() => setIsModalOpen(true)}
                 style={{
                     width: '100%',
-                    marginTop: '1.5rem',
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-full)',
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    color: 'white',
+                    marginTop: '24px',
+                    padding: '14px',
+                    borderRadius: '100px',
+                    background: '#2DD4A7',
+                    color: '#0C1117',
                     fontWeight: 600,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.5rem',
-                    boxShadow: '0 4px 15px rgba(16,185,129,0.3)'
+                    gap: '8px',
+                    boxShadow: '0 6px 20px rgba(45,212,167,0.3)'
                 }}
             >
-                <Plus size={18} /> Add Income
+                <Plus size={18} strokeWidth={2} /> Add Income
             </button>
 
             <AddTransactionModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={handleModalClose}
                 defaultType="Income"
             />
         </div>

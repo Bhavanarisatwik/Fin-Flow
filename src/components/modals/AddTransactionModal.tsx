@@ -12,30 +12,30 @@ interface Props {
 
 // Category configs
 const EXPENSE_CATEGORIES = [
-    { id: 'Food', label: 'Food & Dining', icon: <Utensils size={18} />, color: '#d4af37' },
+    { id: 'Food', label: 'Food & Dining', icon: <Utensils size={18} />, color: 'var(--warning)' },
     { id: 'Transport', label: 'Transportation', icon: <Car size={18} />, color: '#06b6d4' },
     { id: 'Utilities', label: 'Utilities', icon: <Home size={18} />, color: '#6366f1' },
     { id: 'Shopping', label: 'Shopping', icon: <ShoppingBag size={18} />, color: '#8b5cf6' },
-    { id: 'Entertainment', label: 'Entertainment', icon: <Gamepad2 size={18} />, color: '#10b981' },
+    { id: 'Entertainment', label: 'Entertainment', icon: <Gamepad2 size={18} />, color: 'var(--primary)' },
     { id: 'Health', label: 'Health', icon: <Heart size={18} />, color: '#ec4899' },
-    { id: 'Education', label: 'Education', icon: <GraduationCap size={18} />, color: '#f4d03f' },
+    { id: 'Education', label: 'Education', icon: <GraduationCap size={18} />, color: '#f5d96a' },
     { id: 'Other', label: 'Other', icon: <MoreHorizontal size={18} />, color: '#64748b' },
 ];
 
 const INCOME_CATEGORIES = [
-    { id: 'Salary', label: 'Salary', icon: <Briefcase size={18} />, color: '#10b981' },
-    { id: 'Business', label: 'Business', icon: <TrendingUp size={18} />, color: '#d4af37' },
+    { id: 'Salary', label: 'Salary', icon: <Briefcase size={18} />, color: 'var(--primary)' },
+    { id: 'Business', label: 'Business', icon: <TrendingUp size={18} />, color: 'var(--warning)' },
     { id: 'Freelance', label: 'Freelance', icon: <Wallet size={18} />, color: '#06b6d4' },
     { id: 'Gift', label: 'Gift', icon: <Gift size={18} />, color: '#ec4899' },
     { id: 'Other', label: 'Other', icon: <MoreHorizontal size={18} />, color: '#64748b' },
 ];
 
 const INVEST_CATEGORIES = [
-    { id: 'Mutual Funds', label: 'Mutual Funds', icon: <BarChart3 size={18} />, color: '#10b981' },
-    { id: 'Stocks', label: 'Stocks', icon: <TrendingUp size={18} />, color: '#d4af37' },
+    { id: 'Mutual Funds', label: 'Mutual Funds', icon: <BarChart3 size={18} />, color: 'var(--primary)' },
+    { id: 'Stocks', label: 'Stocks', icon: <TrendingUp size={18} />, color: 'var(--warning)' },
     { id: 'Debt Funds', label: 'Debt Funds', icon: <Landmark size={18} />, color: '#06b6d4' },
     { id: 'FD', label: 'Fixed Deposit', icon: <PiggyBank size={18} />, color: '#8b5cf6' },
-    { id: 'Gold', label: 'Gold', icon: <Coins size={18} />, color: '#f4d03f' },
+    { id: 'Gold', label: 'Gold', icon: <Coins size={18} />, color: '#f5d96a' },
 ];
 
 export const AddTransactionModal: React.FC<Props> = ({ isOpen, onClose, defaultType = 'Expense' }) => {
@@ -82,11 +82,11 @@ export const AddTransactionModal: React.FC<Props> = ({ isOpen, onClose, defaultT
                 style={{
                     width: '100%',
                     maxWidth: 480,
-                    background: 'linear-gradient(180deg, #0f1a14 0%, #0a100d 100%)',
+                    background: 'linear-gradient(180deg, var(--bg-secondary) 0%, #0a100d 100%)',
                     borderRadius: '24px 24px 0 0',
                     padding: '1.5rem',
                     paddingBottom: '2rem',
-                    border: '1px solid rgba(16,185,129,0.15)',
+                    border: '1px solid rgba(45,212,167,0.15)',
                     borderBottom: 'none'
                 }}
             >
@@ -100,7 +100,7 @@ export const AddTransactionModal: React.FC<Props> = ({ isOpen, onClose, defaultT
                     <h3 style={{
                         fontSize: '1.25rem',
                         fontWeight: 700,
-                        background: 'linear-gradient(135deg, #10b981 0%, #d4af37 100%)',
+                        background: 'linear-gradient(135deg, var(--primary) 0%, var(--warning) 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent'
                     }}>
@@ -129,8 +129,8 @@ export const AddTransactionModal: React.FC<Props> = ({ isOpen, onClose, defaultT
                 }}>
                     {([
                         { id: 'Expense', icon: <TrendingDown size={16} />, color: '#ef4444' },
-                        { id: 'Income', icon: <TrendingUp size={16} />, color: '#10b981' },
-                        { id: 'Invest', icon: <Wallet size={16} />, color: '#d4af37' },
+                        { id: 'Income', icon: <TrendingUp size={16} />, color: 'var(--primary)' },
+                        { id: 'Invest', icon: <Wallet size={16} />, color: 'var(--warning)' },
                     ] as const).map(t => (
                         <button
                             key={t.id}
@@ -161,8 +161,8 @@ export const AddTransactionModal: React.FC<Props> = ({ isOpen, onClose, defaultT
                 <form onSubmit={handleSubmit}>
                     {/* Amount Input - Premium Style */}
                     <div style={{
-                        background: 'linear-gradient(145deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.02) 100%)',
-                        border: '1px solid rgba(16,185,129,0.2)',
+                        background: 'linear-gradient(145deg, rgba(45,212,167,0.08) 0%, rgba(45,212,167,0.02) 100%)',
+                        border: '1px solid rgba(45,212,167,0.2)',
                         borderRadius: 16,
                         padding: '1.25rem',
                         marginBottom: '1rem'
@@ -171,7 +171,7 @@ export const AddTransactionModal: React.FC<Props> = ({ isOpen, onClose, defaultT
                             display: 'flex',
                             alignItems: 'center',
                             gap: '0.5rem',
-                            color: '#10b981',
+                            color: 'var(--primary)',
                             fontSize: '0.75rem',
                             fontWeight: 600,
                             textTransform: 'uppercase',
@@ -301,13 +301,13 @@ export const AddTransactionModal: React.FC<Props> = ({ isOpen, onClose, defaultT
                             padding: '1rem',
                             borderRadius: 'var(--radius-full)',
                             background: (amount && category)
-                                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                                ? 'linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)'
                                 : 'rgba(255,255,255,0.1)',
                             color: (amount && category) ? 'white' : 'var(--text-muted)',
                             fontWeight: 600,
                             fontSize: '1rem',
                             boxShadow: (amount && category)
-                                ? '0 4px 20px rgba(16,185,129,0.4)'
+                                ? '0 4px 20px rgba(45,212,167,0.4)'
                                 : 'none',
                             transition: 'all 0.3s ease'
                         }}
@@ -319,3 +319,5 @@ export const AddTransactionModal: React.FC<Props> = ({ isOpen, onClose, defaultT
         </div>
     );
 };
+
+

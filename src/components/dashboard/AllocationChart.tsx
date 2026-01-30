@@ -13,7 +13,7 @@ export const AllocationChart: React.FC<Props> = ({ bracket }) => {
     const data = [
         { name: 'Needs', value: allocation.needs, color: '#f59e0b' }, // Amber
         { name: 'Wants', value: allocation.wants, color: '#ef4444' }, // Rose
-        { name: 'Invest', value: allocation.investments, color: '#10b981' }, // Emerald
+        { name: 'Invest', value: allocation.investments, color: '#56d4b3' }, // Emerald
         { name: 'Emergency', value: allocation.emergency, color: '#3b82f6' } // Blue
     ].filter(d => d.value > 0);
 
@@ -48,3 +48,4 @@ export const AllocationChart: React.FC<Props> = ({ bracket }) => {
         </div>
     );
 };
+
