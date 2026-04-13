@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Lock, Delete, Check, Fingerprint } from 'lucide-react';
+import { NativeBiometric, BiometryType } from '@capgo/capacitor-native-biometric';
+import { Capacitor } from '@capacitor/core';
 
 interface Props {
     onUnlock: () => void;
@@ -14,9 +16,47 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [pressedKey, setPressedKey] = useState<string | null>(null);
+    const [biometricsAvailable, setBiometricsAvailable] = useState(false);
+    const [biometricsEnabled, setBiometricsEnabled] = useState(false);
+    const [biometryType, setBiometryType] = useState<string>('Fingerprint');
 
     const storedPin = localStorage.getItem('finflow_pin');
     const maxLength = 4;
+
+    // Check biometrics availability on mount
+    useEffect(() => {
+        const checkBiometrics = async () => {
+            // Only check if running on native platform
+            if (!Capacitor.isNativePlatform()) {
+                return;
+            }
+
+            try {
+                const result = await NativeBiometric.isAvailable();
+                setBiometricsAvailable(result.isAvailable);
+
+                // Set biometry type name
+                if (result.biometryType === BiometryType.FACE_ID) {
+                    setBiometryType('Face ID');
+                } else if (result.biometryType === BiometryType.FACE_AUTHENTICATION) {
+                    setBiometryType('Face Unlock');
+                } else {
+                    setBiometryType('Fingerprint');
+                }
+
+                const enabled = localStorage.getItem('finflow_biometric_enabled') === 'true';
+                setBiometricsEnabled(enabled);
+
+                // Auto-trigger biometrics if available and enabled (not in setup mode)
+                if (!isSetup && result.isAvailable && enabled) {
+                    handleBiometricAuth();
+                }
+            } catch (error) {
+                console.log('Biometrics not available:', error);
+            }
+        };
+        checkBiometrics();
+    }, [isSetup]);
 
     useEffect(() => {
         if (pin.length === maxLength && !isSetup) {
@@ -40,7 +80,27 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
                 localStorage.setItem('finflow_pin', newPin);
                 setSuccess(true);
                 onSetPin?.(newPin);
-                setTimeout(onUnlock, 400);
+
+                // Offer to enable biometrics after setting PIN
+                if (biometricsAvailable) {
+                    setTimeout(async () => {
+                        try {
+                            // Try to set credentials - this will prompt for biometric
+                            await NativeBiometric.setCredentials({
+                                username: 'finflow-user',
+                                password: newPin,
+                                server: 'finflow.app'
+                            });
+                            localStorage.setItem('finflow_biometric_enabled', 'true');
+                            setBiometricsEnabled(true);
+                        } catch (e) {
+                            console.log('Biometric setup skipped');
+                        }
+                        onUnlock();
+                    }, 500);
+                } else {
+                    setTimeout(onUnlock, 400);
+                }
             } else {
                 setError('PINs do not match');
                 setTimeout(() => {
@@ -49,12 +109,57 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
                 }, 600);
             }
         }
-    }, [confirmPin, pin, isSetup, isConfirming, onUnlock, onSetPin]);
+    }, [confirmPin, pin, isSetup, isConfirming, onUnlock, onSetPin, biometricsAvailable]);
+
+    const handleBiometricAuth = async () => {
+        try {
+            // Verify identity using biometrics
+            await NativeBiometric.verifyIdentity({
+                reason: 'Unlock FinFlow',
+                title: 'Fingerprint Login',
+                subtitle: 'Use your fingerprint to access FinFlow',
+                description: 'Touch the fingerprint sensor',
+                negativeButtonText: 'Use PIN'
+            });
+
+            // If successful, unlock
+            setSuccess(true);
+            setTimeout(onUnlock, 400);
+        } catch (error) {
+            console.log('Biometric auth failed or cancelled:', error);
+            // User can still use PIN
+        }
+    };
+
+    const handleEnableBiometrics = async () => {
+        try {
+            // Verify identity first
+            await NativeBiometric.verifyIdentity({
+                reason: 'Enable fingerprint login',
+                title: 'Enable Biometrics',
+                subtitle: 'Verify your identity to enable fingerprint login',
+                negativeButtonText: 'Cancel'
+            });
+
+            // Store credentials if verification succeeds
+            if (storedPin) {
+                await NativeBiometric.setCredentials({
+                    username: 'finflow-user',
+                    password: storedPin,
+                    server: 'finflow.app'
+                });
+            }
+
+            localStorage.setItem('finflow_biometric_enabled', 'true');
+            setBiometricsEnabled(true);
+        } catch (error) {
+            console.log('Failed to enable biometrics:', error);
+        }
+    };
 
     const handleDigit = useCallback((digit: string) => {
         if (error || success) return;
 
-        // Haptic feedback simulation
         setPressedKey(digit);
         setTimeout(() => setPressedKey(null), 150);
 
@@ -96,7 +201,7 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'linear-gradient(180deg, #050a08 0%, #0a100d 50%, #161b22 100%)',
+            background: '#0C1117',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -253,18 +358,49 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
                 ))}
             </div>
 
-            {/* Biometric Hint (visual only) */}
-            <div style={{
-                marginTop: '2rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                color: 'var(--text-muted)',
-                opacity: 0.6
-            }}>
-                <Fingerprint size={18} />
-                <span style={{ fontSize: '0.75rem' }}>Use fingerprint if available</span>
-            </div>
+            {/* Biometric Button - Only show on native platform */}
+            {!isSetup && biometricsAvailable && biometricsEnabled && (
+                <button
+                    onClick={handleBiometricAuth}
+                    style={{
+                        marginTop: '2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        padding: '14px 24px',
+                        borderRadius: 100,
+                        background: 'linear-gradient(135deg, rgba(45,212,167,0.15) 0%, rgba(45,212,167,0.05) 100%)',
+                        border: '1px solid rgba(45,212,167,0.3)',
+                        color: '#2DD4A7',
+                        fontWeight: 600,
+                        fontSize: '0.9rem'
+                    }}
+                >
+                    <Fingerprint size={22} />
+                    Use {biometryType}
+                </button>
+            )}
+
+            {/* Enable biometrics option */}
+            {!isSetup && biometricsAvailable && !biometricsEnabled && (
+                <button
+                    onClick={handleEnableBiometrics}
+                    style={{
+                        marginTop: '2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        color: 'var(--text-muted)',
+                        opacity: 0.8,
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '0.8rem'
+                    }}
+                >
+                    <Fingerprint size={18} />
+                    <span>Enable {biometryType} login</span>
+                </button>
+            )}
 
             {/* Skip option for setup */}
             {isSetup && !isConfirming && (
@@ -319,5 +455,3 @@ export const PinLock: React.FC<Props> = ({ onUnlock, isSetup = false, onSetPin }
 };
 
 export default PinLock;
-
-

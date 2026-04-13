@@ -126,11 +126,19 @@ export const Welcome: React.FC = () => {
                     {/* Orbiting Ring */}
                     <div style={{
                         position: 'absolute',
-                        inset: -6,
-                        borderRadius: 30,
-                        border: '1px solid transparent',
-                        borderTopColor: 'rgba(45,212,167,0.4)',
+                        inset: -10,
+                        borderRadius: '50%',
+                        border: '2px solid rgba(45,212,167,0.3)',
                         animation: animationStep >= 2 ? 'orbit 3s linear infinite' : 'none'
+                    }} />
+
+                    {/* Second Ring - offset */}
+                    <div style={{
+                        position: 'absolute',
+                        inset: -16,
+                        borderRadius: '50%',
+                        border: '1px dashed rgba(245,158,11,0.2)',
+                        animation: animationStep >= 2 ? 'orbitReverse 5s linear infinite' : 'none'
                     }} />
                 </div>
 
@@ -337,6 +345,10 @@ export const Welcome: React.FC = () => {
                 @keyframes orbit {
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }
+                }
+                @keyframes orbitReverse {
+                    from { transform: rotate(360deg); }
+                    to { transform: rotate(0deg); }
                 }
                 @keyframes floatIcon {
                     0%, 100% { transform: translateY(0); }

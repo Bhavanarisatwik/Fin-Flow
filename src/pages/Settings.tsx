@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../services/storage';
 import {
     ChevronLeft, Settings as SettingsIcon, Percent, TrendingUp,
-    Shield, Trash2, Lock, ChevronRight, Save
+    Shield, Trash2, Lock, ChevronRight, Save, LogOut
 } from 'lucide-react';
 
 interface FinancialSettings {
@@ -19,8 +19,11 @@ export const Settings: React.FC = () => {
     const navigate = useNavigate();
 
     const [showResetModal, setShowResetModal] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [resetPin, setResetPin] = useState('');
     const [resetError, setResetError] = useState('');
+    const [logoutPin, setLogoutPin] = useState('');
+    const [logoutError, setLogoutError] = useState('');
 
     // Financial settings with defaults
     const [settings, setSettings] = useState<FinancialSettings>({
@@ -61,6 +64,26 @@ export const Settings: React.FC = () => {
 
         setShowResetModal(false);
         navigate('/');
+    };
+
+    const handleLogout = async () => {
+        const storedPin = localStorage.getItem('finflow_pin');
+
+        if (storedPin && logoutPin !== storedPin) {
+            setLogoutError('Incorrect PIN');
+            return;
+        }
+
+        // Clear ALL data
+        await db.transactions.where({ userId: user.id }).delete();
+        await db.loans.where({ userId: user.id }).delete();
+        await db.goals.where({ userId: user.id }).delete();
+        await db.users.delete(user.id);
+
+        localStorage.removeItem('finflow_pin');
+        sessionStorage.removeItem('finflow_unlocked');
+
+        window.location.href = '/welcome';
     };
 
     const settingItems = [
@@ -227,23 +250,44 @@ export const Settings: React.FC = () => {
                 <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
                     Reset will delete all transactions, loans, and goals. This cannot be undone.
                 </p>
-                <button
-                    onClick={() => setShowResetModal(true)}
-                    className="flex-center"
-                    style={{
-                        width: '100%',
-                        padding: '12px',
-                        borderRadius: '100px',
-                        background: 'rgba(251,113,133,0.1)',
-                        color: '#FB7185',
-                        fontWeight: 600,
-                        gap: '8px',
-                        border: '1px solid rgba(251,113,133,0.2)'
-                    }}
-                >
-                    <Trash2 size={16} strokeWidth={1.5} />
-                    Reset App Data
-                </button>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <button
+                        onClick={() => setShowResetModal(true)}
+                        className="flex-center"
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            borderRadius: '100px',
+                            background: 'rgba(251,113,133,0.1)',
+                            color: '#FB7185',
+                            fontWeight: 600,
+                            gap: '8px',
+                            border: '1px solid rgba(251,113,133,0.2)'
+                        }}
+                    >
+                        <Trash2 size={16} strokeWidth={1.5} />
+                        Reset App Data
+                    </button>
+
+                    <button
+                        onClick={() => setShowLogoutModal(true)}
+                        className="flex-center"
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            borderRadius: '100px',
+                            background: 'rgba(245,158,11,0.1)',
+                            color: '#F59E0B',
+                            fontWeight: 600,
+                            gap: '8px',
+                            border: '1px solid rgba(245,158,11,0.2)'
+                        }}
+                    >
+                        <LogOut size={16} strokeWidth={1.5} />
+                        Logout & Restart App
+                    </button>
+                </div>
             </div>
 
             {/* Reset Modal */}
@@ -334,6 +378,100 @@ export const Settings: React.FC = () => {
                                 }}
                             >
                                 Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Logout Modal */}
+            {showLogoutModal && (
+                <div style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0.8)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '24px',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '20px',
+                        padding: '24px',
+                        width: '100%',
+                        maxWidth: 340,
+                        border: '1px solid var(--border-subtle)'
+                    }}>
+                        <div className="flex-center" style={{ gap: '8px', marginBottom: '16px' }}>
+                            <LogOut size={20} strokeWidth={1.5} style={{ color: '#F59E0B' }} />
+                            <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Logout & Restart</h3>
+                        </div>
+
+                        <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginBottom: '16px', textAlign: 'center' }}>
+                            This will delete ALL data and restart from Welcome page.
+                        </p>
+
+                        <input
+                            type="password"
+                            maxLength={6}
+                            value={logoutPin}
+                            onChange={(e) => {
+                                setLogoutPin(e.target.value);
+                                setLogoutError('');
+                            }}
+                            placeholder="Enter your PIN"
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                borderRadius: '12px',
+                                background: 'var(--bg-tertiary)',
+                                border: logoutError ? '1px solid #FB7185' : '1px solid var(--border-medium)',
+                                color: 'var(--text-primary)',
+                                fontSize: '1.25rem',
+                                textAlign: 'center',
+                                letterSpacing: '0.5em',
+                                marginBottom: '8px'
+                            }}
+                        />
+
+                        {logoutError && (
+                            <p style={{ fontSize: '0.75rem', color: '#FB7185', textAlign: 'center', marginBottom: '12px' }}>
+                                {logoutError}
+                            </p>
+                        )}
+
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                            <button
+                                onClick={() => {
+                                    setShowLogoutModal(false);
+                                    setLogoutPin('');
+                                    setLogoutError('');
+                                }}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px',
+                                    borderRadius: '100px',
+                                    background: 'var(--bg-tertiary)',
+                                    color: 'var(--text-secondary)',
+                                    fontWeight: 500
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px',
+                                    borderRadius: '100px',
+                                    background: '#F59E0B',
+                                    color: '#0C1117',
+                                    fontWeight: 600
+                                }}
+                            >
+                                Logout
                             </button>
                         </div>
                     </div>
